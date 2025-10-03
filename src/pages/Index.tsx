@@ -221,6 +221,22 @@ export default function Index() {
             (mapTools as any)?.connectAnganwadiToNearestSchool ||
             (() => console.warn("Function not ready"))
           }
+          checkInfrastructureRisks={
+            (mapTools as any)?.checkInfrastructureRisks ||
+            (() => console.warn("Check Infrastructure Risks function not ready"))
+          }
+          checkRiverHighwayIntersections={
+            (mapTools as any)?.checkRiverHighwayIntersections ||
+            (() => console.warn("Check River & Highway Intersections function not ready"))
+          }
+          create5kmAnganwadiSchoolAnalysis={
+            (mapTools as any)?.create5kmAnganwadiSchoolAnalysis ||
+            (() => console.warn("Create 5km Anganwadi-School Analysis function not ready"))
+          }
+          connectAnganwadiToSchools={
+            (mapTools as any)?.connectAnganwadiToSchools ||
+            (() => console.warn("Connect Anganwadi to Schools function not ready"))
+          }
           generateBufferReport={() => {
             if ((mapTools as any)?.generateBufferReport) {
               const data = (mapTools as any).generateBufferReport();
