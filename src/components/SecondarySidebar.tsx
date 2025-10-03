@@ -1,11 +1,28 @@
-import React, { useState } from 'react';
-import { ChevronDown, ChevronUp, Pencil, Calculator, Layers, MapPin, Building, Users, School, AlertTriangle, TreePine, Search, Filter, MoreHorizontal, Map, Radio } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { DrawingTools } from './DrawingTools';
-import { AnalysisTools } from './AnalysisTools';
-import { DraggablePanel } from './DraggablePanel';
-import { chhattisgarhLayerHierarchy } from '@/lib/layerData';
-import { useAppStore } from '@/lib/store';
+import React, { useState } from "react";
+import {
+  ChevronDown,
+  ChevronUp,
+  Pencil,
+  Calculator,
+  Layers,
+  MapPin,
+  Building,
+  Users,
+  School,
+  AlertTriangle,
+  TreePine,
+  Search,
+  Filter,
+  MoreHorizontal,
+  Map,
+  Radio,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { DrawingTools } from "./DrawingTools";
+import { AnalysisTools } from "./AnalysisTools";
+import { DraggablePanel } from "./DraggablePanel";
+import { chhattisgarhLayerHierarchy } from "@/lib/layerData";
+import { useAppStore } from "@/lib/store";
 
 interface SecondarySidebarProps {
   onLayerSelectionChange: (layers: string[]) => void;
@@ -26,12 +43,13 @@ interface SecondarySidebarProps {
   create5kmAnganwadiSchoolAnalysis?: () => void;
   connectAnganwadiToSchools?: () => void;
   generateBufferReport?: () => void;
+  checkSchoolInfrastructureIntersections?: () => void;
   onClearMap?: () => void;
   isLoading?: boolean;
   loadingMessage?: string;
 }
 
-export const SecondarySidebar: React.FC<SecondarySidebarProps> = ({ 
+export const SecondarySidebar: React.FC<SecondarySidebarProps> = ({
   onLayerSelectionChange,
   layersVisibility = {},
   toggleLayer = () => {},
@@ -50,21 +68,22 @@ export const SecondarySidebar: React.FC<SecondarySidebarProps> = ({
   create5kmAnganwadiSchoolAnalysis = () => {},
   connectAnganwadiToSchools = () => {},
   generateBufferReport = () => {},
+  checkSchoolInfrastructureIntersections = () => {},
   onClearMap = () => {},
   isLoading = false,
-  loadingMessage = ""
+  loadingMessage = "",
 }) => {
-  const { 
+  const {
     secondarySidebarOpen,
-    selectedLanguage, 
-    selectedLayers, 
+    selectedLanguage,
+    selectedLayers,
     activeSidebarTab,
     activeDrawingTool,
     toggleSecondarySidebar,
     setActiveSidebarTab,
-    setActiveDrawingTool
+    setActiveDrawingTool,
   } = useAppStore();
-  
+
   const [expandedSections, setExpandedSections] = useState({
     layers: false,
     tools: false,
@@ -81,7 +100,7 @@ export const SecondarySidebar: React.FC<SecondarySidebarProps> = ({
     infrastructure: true,
   });
 
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [activeTool, setActiveTool] = useState<string | null>(null);
 
   const toggleSection = (section: string) => {
@@ -103,12 +122,8 @@ export const SecondarySidebar: React.FC<SecondarySidebarProps> = ({
     {
       id: "boundaries",
       name: "Boundaries",
-      icon: MapPin,
       children: [
         {
-          id: "state",
-          name: "State Boundary",
-          icon: MapPin,
           color: "#000",
           description: "Chhattisgarh state outline",
         },
@@ -126,7 +141,7 @@ export const SecondarySidebar: React.FC<SecondarySidebarProps> = ({
           color: "#1e88e5",
           description: "Village-level administrative boundaries",
         },
-      ]
+      ],
     },
     {
       id: "education",
@@ -147,7 +162,7 @@ export const SecondarySidebar: React.FC<SecondarySidebarProps> = ({
           color: "#d32f2f",
           description: "Areas not covered by services",
         },
-      ]
+      ],
     },
     {
       id: "infrastructure",
@@ -175,7 +190,7 @@ export const SecondarySidebar: React.FC<SecondarySidebarProps> = ({
           color: "#ff89e2ff",
           description: "Road network",
         },
-      ]
+      ],
     },
   ];
 
@@ -189,27 +204,33 @@ export const SecondarySidebar: React.FC<SecondarySidebarProps> = ({
     return text.toLowerCase().includes(searchTerm.toLowerCase());
   };
 
-  const filteredLayerTree = preschoolLayerTree.map(category => ({
-    ...category,
-    children: category.children?.filter(layer => 
-      matchesSearch(layer.name) || matchesSearch(layer.description)
-    ) || []
-  })).filter(category => 
-    matchesSearch(category.name) || (category.children && category.children.length > 0)
-  );
+  const filteredLayerTree = preschoolLayerTree
+    .map((category) => ({
+      ...category,
+      children:
+        category.children?.filter(
+          (layer) =>
+            matchesSearch(layer.name) || matchesSearch(layer.description)
+        ) || [],
+    }))
+    .filter(
+      (category) =>
+        matchesSearch(category.name) ||
+        (category.children && category.children.length > 0)
+    );
 
   if (!secondarySidebarOpen) return null;
 
   const getTitle = () => {
     switch (activeSidebarTab) {
-      case 'layers':
-        return selectedLanguage === 'hi' ? 'परतें' : 'Layers';
-      case 'draw':
-        return selectedLanguage === 'hi' ? 'ड्रॉइंग उपकरण' : 'Drawing Tools';
-      case 'analysis':
-        return selectedLanguage === 'hi' ? 'विश्लेषण उपकरण' : 'Analysis Tools';
+      case "layers":
+        return selectedLanguage === "hi" ? "परतें" : "Layers";
+      case "draw":
+        return selectedLanguage === "hi" ? "ड्रॉइंग उपकरण" : "Drawing Tools";
+      case "analysis":
+        return selectedLanguage === "hi" ? "विश्लेषण उपकरण" : "Analysis Tools";
       default:
-        return 'Tools';
+        return "Tools";
     }
   };
 
@@ -225,7 +246,7 @@ export const SecondarySidebar: React.FC<SecondarySidebarProps> = ({
       panelType="left-sidebar"
     >
       {/* Tool Content */}
-      {activeSidebarTab === 'layers' && (
+      {activeSidebarTab === "layers" && (
         <>
           {/* Search Input */}
           <div className="mb-4">
@@ -233,7 +254,11 @@ export const SecondarySidebar: React.FC<SecondarySidebarProps> = ({
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <input
                 type="text"
-                placeholder={selectedLanguage === 'hi' ? 'परतें खोजें...' : 'Search layers...'}
+                placeholder={
+                  selectedLanguage === "hi"
+                    ? "परतें खोजें..."
+                    : "Search layers..."
+                }
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
@@ -246,7 +271,8 @@ export const SecondarySidebar: React.FC<SecondarySidebarProps> = ({
             <div className="flex justify-between items-center">
               <div className="flex items-center space-x-2">
                 <span className="text-xs text-gray-600">
-                  {selectedLayers.length} / {totalLayers} {selectedLanguage === 'hi' ? 'चयनित' : 'selected'}
+                  {selectedLayers.length} / {totalLayers}{" "}
+                  {selectedLanguage === "hi" ? "चयनित" : "selected"}
                 </span>
                 {selectedLayers.length > 0 && (
                   <Button
@@ -255,7 +281,7 @@ export const SecondarySidebar: React.FC<SecondarySidebarProps> = ({
                     onClick={() => onLayerSelectionChange([])}
                     className="text-xs h-6 px-2 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
                   >
-                    {selectedLanguage === 'hi' ? 'सभी साफ़ करें' : 'Clear all'}
+                    {selectedLanguage === "hi" ? "सभी साफ़ करें" : "Clear all"}
                   </Button>
                 )}
               </div>
@@ -277,17 +303,23 @@ export const SecondarySidebar: React.FC<SecondarySidebarProps> = ({
               </div>
             </div>
           </div>
-          
+
           {/* Preschool Layer Tree Selection */}
           <div className="max-h-96 overflow-y-auto space-y-1">
             {filteredLayerTree.map((category) => {
-              const isExpanded = expandedTreeNodes[category.id as keyof typeof expandedTreeNodes];
+              const isExpanded =
+                expandedTreeNodes[
+                  category.id as keyof typeof expandedTreeNodes
+                ];
               const IconComponent = category.icon;
-              
+
               return (
-                <div key={category.id} className="border border-gray-200 rounded-lg">
+                <div
+                  key={category.id}
+                  className="border border-gray-200 rounded-lg"
+                >
                   {/* Category Header */}
-                  <div 
+                  <div
                     className="flex items-center justify-between p-2 cursor-pointer hover:bg-gray-50"
                     onClick={() => toggleTreeNode(category.id)}
                   >
@@ -298,19 +330,26 @@ export const SecondarySidebar: React.FC<SecondarySidebarProps> = ({
                         <ChevronUp className="h-4 w-4 text-gray-500" />
                       )}
                       <IconComponent className="h-4 w-4 text-gray-600" />
-                      <span className="text-sm font-medium text-gray-900">{category.name}</span>
+                      <span className="text-sm font-medium text-gray-900">
+                        {category.name}
+                      </span>
                     </div>
                   </div>
-                  
+
                   {/* Category Children */}
                   {isExpanded && category.children && (
                     <div className="border-t border-gray-100 bg-gray-50">
                       {category.children.map((layer) => {
-                        const isVisible = (layersVisibility && layersVisibility[layer.id]) || false;
+                        const isVisible =
+                          (layersVisibility && layersVisibility[layer.id]) ||
+                          false;
                         const LayerIconComponent = layer.icon;
-                        
+
                         return (
-                          <div key={layer.id} className="flex items-center justify-between p-2 hover:bg-gray-100">
+                          <div
+                            key={layer.id}
+                            className="flex items-center justify-between p-2 hover:bg-gray-100"
+                          >
                             <div className="flex items-center space-x-3 ml-6">
                               <div
                                 className="w-3 h-3 rounded-full border border-gray-300"
@@ -318,8 +357,12 @@ export const SecondarySidebar: React.FC<SecondarySidebarProps> = ({
                               />
                               <LayerIconComponent className="h-3 w-3 text-gray-600" />
                               <div className="flex-1">
-                                <div className="text-xs font-medium text-gray-900">{layer.name}</div>
-                                <div className="text-xs text-gray-500">{layer.description}</div>
+                                <div className="text-xs font-medium text-gray-900">
+                                  {layer.name}
+                                </div>
+                                <div className="text-xs text-gray-500">
+                                  {layer.description}
+                                </div>
                               </div>
                             </div>
                             <input
@@ -343,10 +386,12 @@ export const SecondarySidebar: React.FC<SecondarySidebarProps> = ({
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-medium text-gray-900">Filters</h3>
             </div>
-            
+
             <div className="space-y-3">
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-2">District:</label>
+                <label className="block text-xs font-medium text-gray-700 mb-2">
+                  District:
+                </label>
                 <select
                   value={selectedDistrict || ""}
                   onChange={(e) => {
@@ -366,7 +411,9 @@ export const SecondarySidebar: React.FC<SecondarySidebarProps> = ({
 
               {villageOptions.length > 0 && (
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-2">Village:</label>
+                  <label className="block text-xs font-medium text-gray-700 mb-2">
+                    Village:
+                  </label>
                   <select
                     value={selectedVillage || ""}
                     onChange={(e) => onVillageChange(e.target.value)}
@@ -386,7 +433,7 @@ export const SecondarySidebar: React.FC<SecondarySidebarProps> = ({
         </>
       )}
 
-      {activeSidebarTab === 'draw' && (
+      {activeSidebarTab === "draw" && (
         <div className="max-h-96 overflow-y-auto">
           <DrawingTools
             onToolSelect={setActiveDrawingTool}
@@ -395,12 +442,12 @@ export const SecondarySidebar: React.FC<SecondarySidebarProps> = ({
         </div>
       )}
 
-      {activeSidebarTab === 'analysis' && (
+      {activeSidebarTab === "analysis" && (
         <div className="max-h-96 overflow-y-auto space-y-3">
           {/* Tools Section */}
           <div className="space-y-3">
             <h3 className="text-sm font-medium text-gray-900">Tools</h3>
-            
+
             {/* Buffer Radius Slider */}
             <div className="space-y-2">
               <label className="block text-xs font-medium text-gray-700">
@@ -416,105 +463,154 @@ export const SecondarySidebar: React.FC<SecondarySidebarProps> = ({
                 className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
               />
             </div>
-            
+
             {/* Tool Buttons */}
             <div className="grid grid-cols-1 gap-2">
               <Button
-                variant={activeTool === 'highlight-schools' ? 'default' : 'outline'}
+                variant={
+                  activeTool === "highlight-schools" ? "default" : "outline"
+                }
                 size="sm"
                 onClick={() => {
-                  setActiveTool(activeTool === 'highlight-schools' ? null : 'highlight-schools');
+                  setActiveTool(
+                    activeTool === "highlight-schools"
+                      ? null
+                      : "highlight-schools"
+                  );
                   highlightSchoolsInBuffers();
                 }}
                 className={`w-full justify-start text-xs h-8 ${
-                  activeTool === 'highlight-schools' 
-                    ? 'bg-blue-500 text-white hover:bg-blue-600' 
-                    : 'hover:bg-gray-50'
+                  activeTool === "highlight-schools"
+                    ? "bg-blue-500 text-white hover:bg-blue-600"
+                    : "hover:bg-gray-50"
                 }`}
               >
                 <Radio className="h-3 w-3 mr-2" />
                 Highlight Schools in Buffers
               </Button>
-              
+
               <Button
-                variant={activeTool === 'connect-anganwadi-nearest' ? 'default' : 'outline'}
+                variant={
+                  activeTool === "connect-anganwadi-nearest"
+                    ? "default"
+                    : "outline"
+                }
                 size="sm"
                 onClick={() => {
-                  setActiveTool(activeTool === 'connect-anganwadi-nearest' ? null : 'connect-anganwadi-nearest');
+                  setActiveTool(
+                    activeTool === "connect-anganwadi-nearest"
+                      ? null
+                      : "connect-anganwadi-nearest"
+                  );
                   connectAnganwadiToNearestSchool();
                 }}
                 className={`w-full justify-start text-xs h-8 ${
-                  activeTool === 'connect-anganwadi-nearest' 
-                    ? 'bg-blue-500 text-white hover:bg-blue-600' 
-                    : 'hover:bg-gray-50'
+                  activeTool === "connect-anganwadi-nearest"
+                    ? "bg-blue-500 text-white hover:bg-blue-600"
+                    : "hover:bg-gray-50"
                 }`}
               >
                 <Radio className="h-3 w-3 mr-2" />
                 Connect Anganwadi to Nearest School
               </Button>
-              
+
               <Button
-                variant={activeTool === 'check-infrastructure' ? 'default' : 'outline'}
+                variant="outline"
+                size="sm"
+                onClick={checkSchoolInfrastructureIntersections}
+                className="w-full justify-start text-xs h-8"
+              >
+                Check Infrastructure Risks
+              </Button>
+
+              <Button
+                variant={
+                  activeTool === "check-infrastructure" ? "default" : "outline"
+                }
                 size="sm"
                 onClick={() => {
-                  setActiveTool(activeTool === 'check-infrastructure' ? null : 'check-infrastructure');
+                  setActiveTool(
+                    activeTool === "check-infrastructure"
+                      ? null
+                      : "check-infrastructure"
+                  );
                   checkInfrastructureRisks();
                 }}
                 className={`w-full justify-start text-xs h-8 ${
-                  activeTool === 'check-infrastructure' 
-                    ? 'bg-yellow-500 text-white hover:bg-yellow-600' 
-                    : 'hover:bg-gray-50'
+                  activeTool === "check-infrastructure"
+                    ? "bg-yellow-500 text-white hover:bg-yellow-600"
+                    : "hover:bg-gray-50"
                 }`}
               >
                 <AlertTriangle className="h-3 w-3 mr-2" />
                 Check Infrastructure Risks
               </Button>
-              
+
               <Button
-                variant={activeTool === 'check-intersections' ? 'default' : 'outline'}
+                variant={
+                  activeTool === "check-intersections" ? "default" : "outline"
+                }
                 size="sm"
                 onClick={() => {
-                  setActiveTool(activeTool === 'check-intersections' ? null : 'check-intersections');
+                  setActiveTool(
+                    activeTool === "check-intersections"
+                      ? null
+                      : "check-intersections"
+                  );
                   checkRiverHighwayIntersections();
                 }}
                 className={`w-full justify-start text-xs h-8 ${
-                  activeTool === 'check-intersections' 
-                    ? 'bg-green-500 text-white hover:bg-green-600' 
-                    : 'hover:bg-gray-50'
+                  activeTool === "check-intersections"
+                    ? "bg-green-500 text-white hover:bg-green-600"
+                    : "hover:bg-gray-50"
                 }`}
               >
                 <Map className="h-3 w-3 mr-2" />
                 Check River & Highway Intersections
               </Button>
-              
+
               <Button
-                variant={activeTool === 'create-5km-analysis' ? 'default' : 'outline'}
+                variant={
+                  activeTool === "create-5km-analysis" ? "default" : "outline"
+                }
                 size="sm"
                 onClick={() => {
-                  setActiveTool(activeTool === 'create-5km-analysis' ? null : 'create-5km-analysis');
+                  setActiveTool(
+                    activeTool === "create-5km-analysis"
+                      ? null
+                      : "create-5km-analysis"
+                  );
                   create5kmAnganwadiSchoolAnalysis();
                 }}
                 className={`w-full justify-start text-xs h-8 ${
-                  activeTool === 'create-5km-analysis' 
-                    ? 'bg-purple-500 text-white hover:bg-purple-600' 
-                    : 'hover:bg-gray-50'
+                  activeTool === "create-5km-analysis"
+                    ? "bg-purple-500 text-white hover:bg-purple-600"
+                    : "hover:bg-gray-50"
                 }`}
               >
                 <Calculator className="h-3 w-3 mr-2" />
                 Create 5km Anganwadi-School Analysis
               </Button>
-              
+
               <Button
-                variant={activeTool === 'connect-anganwadi-schools' ? 'default' : 'outline'}
+                variant={
+                  activeTool === "connect-anganwadi-schools"
+                    ? "default"
+                    : "outline"
+                }
                 size="sm"
                 onClick={() => {
-                  setActiveTool(activeTool === 'connect-anganwadi-schools' ? null : 'connect-anganwadi-schools');
+                  setActiveTool(
+                    activeTool === "connect-anganwadi-schools"
+                      ? null
+                      : "connect-anganwadi-schools"
+                  );
                   connectAnganwadiToSchools();
                 }}
                 className={`w-full justify-start text-xs h-8 ${
-                  activeTool === 'connect-anganwadi-schools' 
-                    ? 'bg-orange-500 text-white hover:bg-orange-600' 
-                    : 'hover:bg-gray-50'
+                  activeTool === "connect-anganwadi-schools"
+                    ? "bg-orange-500 text-white hover:bg-orange-600"
+                    : "hover:bg-gray-50"
                 }`}
               >
                 <Radio className="h-3 w-3 mr-2" />

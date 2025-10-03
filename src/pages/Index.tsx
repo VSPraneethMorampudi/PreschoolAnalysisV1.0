@@ -1,26 +1,26 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Header } from '@/components/Header';
-import { Sidebar } from '@/components/Sidebar';
-import { SecondarySidebar } from '@/components/SecondarySidebar';
-import { MobileBottomNav } from '@/components/MobileBottomNav';
-import { MapContainer } from '@/components/MapContainer';
-import { LocationSearchBar } from '@/components/LocationSearchBar';
-import { MapControls } from '@/components/MapControls';
-import { RightSidePanel } from '@/components/RightSidePanel';
-import { SettingsModal } from '@/components/SettingsModal';
-import { HelpModal } from '@/components/HelpModal';
-import { UserProfileModal } from '@/components/UserProfileModal';
-import { EditProfileModal } from '@/components/EditProfileModal';
-import { ChangePasswordModal } from '@/components/ChangePasswordModal';
-import { useAppStore } from '@/lib/store';
-import { ClusterPoint } from '@/lib/mapUtils';
+import React, { useState, useRef, useEffect, useCallback } from "react";
+import { Header } from "@/components/Header";
+import { Sidebar } from "@/components/Sidebar";
+import { SecondarySidebar } from "@/components/SecondarySidebar";
+import { MobileBottomNav } from "@/components/MobileBottomNav";
+import { MapContainer } from "@/components/MapContainer";
+import { LocationSearchBar } from "@/components/LocationSearchBar";
+import { MapControls } from "@/components/MapControls";
+import { RightSidePanel } from "@/components/RightSidePanel";
+import { SettingsModal } from "@/components/SettingsModal";
+import { HelpModal } from "@/components/HelpModal";
+import { UserProfileModal } from "@/components/UserProfileModal";
+import { EditProfileModal } from "@/components/EditProfileModal";
+import { ChangePasswordModal } from "@/components/ChangePasswordModal";
+import { useAppStore } from "@/lib/store";
+import { ClusterPoint } from "@/lib/mapUtils";
 
 // Import the core mapping logic from the original project
-import { PreschoolMapView } from '@/components/PreschoolMapView';
+import { PreschoolMapView } from "@/components/PreschoolMapView";
 
 export default function Index() {
-  const { 
-    selectedLayers, 
+  const {
+    selectedLayers,
     setSelectedLayers,
     showSettingsModal,
     showHelpModal,
@@ -31,7 +31,7 @@ export default function Index() {
     setShowHelpModal,
     setShowUserProfileModal,
     setShowEditProfileModal,
-    setShowChangePasswordModal
+    setShowChangePasswordModal,
   } = useAppStore();
 
   // Preschool-specific state management
@@ -68,7 +68,9 @@ export default function Index() {
   const [showClusterDemo, setShowClusterDemo] = useState(true);
 
   // Map info and controls state
-  const [currentCoordinates, setCurrentCoordinates] = useState<[number, number]>([82.0, 21.5]);
+  const [currentCoordinates, setCurrentCoordinates] = useState<
+    [number, number]
+  >([82.0, 21.5]);
   const [currentZoom, setCurrentZoom] = useState(7);
   const [currentElevation, setCurrentElevation] = useState(0);
   const [showRightPanel, setShowRightPanel] = useState(true);
@@ -138,7 +140,7 @@ export default function Index() {
 
     // Enable layers when district is selected
     if (dist) {
-      setLayersVisibility(prev => ({
+      setLayersVisibility((prev) => ({
         ...prev,
         village: true,
         anganwadi: true,
@@ -171,22 +173,22 @@ export default function Index() {
   };
 
   const handleEditProfile = (newUserData: any) => {
-    console.log('Profile updated:', newUserData);
+    console.log("Profile updated:", newUserData);
     setShowEditProfileModal(false);
   };
 
   const handleChangePassword = (passwordData: any) => {
-    console.log('Password changed:', passwordData);
+    console.log("Password changed:", passwordData);
     setShowChangePasswordModal(false);
   };
 
   const handleCloseEditProfile = () => {
-    console.log('Index: handleCloseEditProfile called');
+    console.log("Index: handleCloseEditProfile called");
     setShowEditProfileModal(false);
   };
 
   const handleCloseChangePassword = () => {
-    console.log('Index: handleCloseChangePassword called');
+    console.log("Index: handleCloseChangePassword called");
     setShowChangePasswordModal(false);
   };
 
@@ -194,14 +196,14 @@ export default function Index() {
     <div className="min-h-screen bg-gray-100 flex flex-col">
       {/* Header */}
       <Header />
-      
+
       {/* Main Content Area */}
       <div className="flex flex-1 min-h-0">
         {/* Sidebar */}
         <Sidebar onLayerSelectionChange={handleLayerSelectionChange} />
-        
+
         {/* Secondary Sidebar */}
-        <SecondarySidebar 
+        <SecondarySidebar
           onLayerSelectionChange={handleLayerSelectionChange}
           layersVisibility={layersVisibility}
           toggleLayer={toggleLayer}
@@ -251,16 +253,18 @@ export default function Index() {
           onClearMap={handleClearMap}
           isLoading={isLoading}
           loadingMessage={loadingMessage}
+          checkSchoolInfrastructureIntersections={() =>
+            mapViewRef.current?.checkSchoolInfrastructureIntersections()
+          }
         />
-        
+
         {/* Map Container */}
         <main className="flex-1 relative min-w-0 lg:map-responsive pb-16 lg:pb-0">
           {/* Location Search Bar */}
           <div className="absolute top-4 left-4 z-30 w-64 sm:w-72 lg:w-80">
             <LocationSearchBar />
           </div>
-          
-          
+
           {/* Preschool Map View with integrated functionality */}
           <PreschoolMapView
             ref={mapViewRef}
@@ -491,7 +495,10 @@ export default function Index() {
                 }}
               >
                 <h3 style={{ margin: 0 }}>
-                  {bufferReport.filter((r: any) => r.numberOfSchools > 0).length}
+                  {
+                    bufferReport.filter((r: any) => r.numberOfSchools > 0)
+                      .length
+                  }
                 </h3>
                 <p style={{ margin: 0 }}>Covered Anganwadis</p>
               </div>
@@ -505,7 +512,10 @@ export default function Index() {
                 }}
               >
                 <h3 style={{ margin: 0 }}>
-                  {bufferReport.filter((r: any) => r.numberOfSchools === 0).length}
+                  {
+                    bufferReport.filter((r: any) => r.numberOfSchools === 0)
+                      .length
+                  }
                 </h3>
                 <p style={{ margin: 0 }}>Non-Covered Anganwadis</p>
               </div>
@@ -676,8 +686,7 @@ export default function Index() {
                     )
                   }
                   disabled={
-                    currentPage ===
-                    Math.ceil(bufferReport.length / rowsPerPage)
+                    currentPage === Math.ceil(bufferReport.length / rowsPerPage)
                   }
                   style={{
                     padding: "5px 10px",
@@ -705,17 +714,17 @@ export default function Index() {
       )}
 
       {/* Modals */}
-      <SettingsModal 
-        isOpen={showSettingsModal} 
-        onClose={() => setShowSettingsModal(false)} 
+      <SettingsModal
+        isOpen={showSettingsModal}
+        onClose={() => setShowSettingsModal(false)}
       />
-      <HelpModal 
-        isOpen={showHelpModal} 
-        onClose={() => setShowHelpModal(false)} 
+      <HelpModal
+        isOpen={showHelpModal}
+        onClose={() => setShowHelpModal(false)}
       />
-      <UserProfileModal 
-        isOpen={showUserProfileModal} 
-        onClose={() => setShowUserProfileModal(false)} 
+      <UserProfileModal
+        isOpen={showUserProfileModal}
+        onClose={() => setShowUserProfileModal(false)}
       />
       <EditProfileModal
         isOpen={showEditProfileModal}
