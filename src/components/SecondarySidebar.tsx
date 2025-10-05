@@ -14,8 +14,6 @@ import {
   Search,
   Filter,
   MoreHorizontal,
-  Map,
-  Radio,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DrawingTools } from "./DrawingTools";
@@ -38,10 +36,6 @@ interface SecondarySidebarProps {
   setBufferRadius?: (radius: number) => void;
   highlightSchoolsInBuffers?: () => void;
   connectAnganwadiToNearestSchool?: () => void;
-  checkInfrastructureRisks?: () => void;
-  checkRiverHighwayIntersections?: () => void;
-  create5kmAnganwadiSchoolAnalysis?: () => void;
-  connectAnganwadiToSchools?: () => void;
   generateBufferReport?: () => void;
   checkSchoolInfrastructureIntersections?: () => void;
   onClearMap?: () => void;
@@ -63,10 +57,6 @@ export const SecondarySidebar: React.FC<SecondarySidebarProps> = ({
   setBufferRadius = () => {},
   highlightSchoolsInBuffers = () => {},
   connectAnganwadiToNearestSchool = () => {},
-  checkInfrastructureRisks = () => {},
-  checkRiverHighwayIntersections = () => {},
-  create5kmAnganwadiSchoolAnalysis = () => {},
-  connectAnganwadiToSchools = () => {},
   generateBufferReport = () => {},
   checkSchoolInfrastructureIntersections = () => {},
   onClearMap = () => {},
@@ -101,7 +91,6 @@ export const SecondarySidebar: React.FC<SecondarySidebarProps> = ({
   });
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [activeTool, setActiveTool] = useState<string | null>(null);
 
   const toggleSection = (section: string) => {
     setExpandedSections((prev) => ({
@@ -122,8 +111,12 @@ export const SecondarySidebar: React.FC<SecondarySidebarProps> = ({
     {
       id: "boundaries",
       name: "Boundaries",
+      icon: MapPin,
       children: [
         {
+          id: "state",
+          name: "State Boundary",
+          icon: MapPin,
           color: "#000",
           description: "Chhattisgarh state outline",
         },
@@ -444,14 +437,14 @@ export const SecondarySidebar: React.FC<SecondarySidebarProps> = ({
 
       {activeSidebarTab === "analysis" && (
         <div className="max-h-96 overflow-y-auto space-y-3">
-          {/* Tools Section */}
+          {/* Buffer Analysis Tools */}
           <div className="space-y-3">
-            <h3 className="text-sm font-medium text-gray-900">Tools</h3>
-
-            {/* Buffer Radius Slider */}
+            <h3 className="text-sm font-medium text-gray-900">
+              Buffer Analysis
+            </h3>
             <div className="space-y-2">
               <label className="block text-xs font-medium text-gray-700">
-                Buffer Radius (km): {bufferRadius}
+                Buffer Radius: {bufferRadius} km
               </label>
               <input
                 type="range"
@@ -464,54 +457,23 @@ export const SecondarySidebar: React.FC<SecondarySidebarProps> = ({
               />
             </div>
 
-            {/* Tool Buttons */}
             <div className="grid grid-cols-1 gap-2">
               <Button
-                variant={
-                  activeTool === "highlight-schools" ? "default" : "outline"
-                }
+                variant="outline"
                 size="sm"
-                onClick={() => {
-                  setActiveTool(
-                    activeTool === "highlight-schools"
-                      ? null
-                      : "highlight-schools"
-                  );
-                  highlightSchoolsInBuffers();
-                }}
-                className={`w-full justify-start text-xs h-8 ${
-                  activeTool === "highlight-schools"
-                    ? "bg-blue-500 text-white hover:bg-blue-600"
-                    : "hover:bg-gray-50"
-                }`}
+                onClick={highlightSchoolsInBuffers}
+                className="w-full justify-start text-xs h-8"
               >
-                <Radio className="h-3 w-3 mr-2" />
-                Highlight Schools in Buffers
+                🎯 Highlight Schools in Buffers
               </Button>
 
               <Button
-                variant={
-                  activeTool === "connect-anganwadi-nearest"
-                    ? "default"
-                    : "outline"
-                }
+                variant="outline"
                 size="sm"
-                onClick={() => {
-                  setActiveTool(
-                    activeTool === "connect-anganwadi-nearest"
-                      ? null
-                      : "connect-anganwadi-nearest"
-                  );
-                  connectAnganwadiToNearestSchool();
-                }}
-                className={`w-full justify-start text-xs h-8 ${
-                  activeTool === "connect-anganwadi-nearest"
-                    ? "bg-blue-500 text-white hover:bg-blue-600"
-                    : "hover:bg-gray-50"
-                }`}
+                onClick={connectAnganwadiToNearestSchool}
+                className="w-full justify-start text-xs h-8"
               >
-                <Radio className="h-3 w-3 mr-2" />
-                Connect Anganwadi to Nearest School
+                🔗 Connect Anganwadi to Nearest School
               </Button>
 
               <Button
@@ -524,99 +486,27 @@ export const SecondarySidebar: React.FC<SecondarySidebarProps> = ({
               </Button>
 
               <Button
-                variant={
-                  activeTool === "check-infrastructure" ? "default" : "outline"
-                }
+                variant="outline"
                 size="sm"
-                onClick={() => {
-                  setActiveTool(
-                    activeTool === "check-infrastructure"
-                      ? null
-                      : "check-infrastructure"
-                  );
-                  checkInfrastructureRisks();
-                }}
-                className={`w-full justify-start text-xs h-8 ${
-                  activeTool === "check-infrastructure"
-                    ? "bg-yellow-500 text-white hover:bg-yellow-600"
-                    : "hover:bg-gray-50"
-                }`}
+                onClick={generateBufferReport}
+                className="w-full justify-start text-xs h-8"
               >
-                <AlertTriangle className="h-3 w-3 mr-2" />
-                Check Infrastructure Risks
-              </Button>
-
-              <Button
-                variant={
-                  activeTool === "check-intersections" ? "default" : "outline"
-                }
-                size="sm"
-                onClick={() => {
-                  setActiveTool(
-                    activeTool === "check-intersections"
-                      ? null
-                      : "check-intersections"
-                  );
-                  checkRiverHighwayIntersections();
-                }}
-                className={`w-full justify-start text-xs h-8 ${
-                  activeTool === "check-intersections"
-                    ? "bg-green-500 text-white hover:bg-green-600"
-                    : "hover:bg-gray-50"
-                }`}
-              >
-                <Map className="h-3 w-3 mr-2" />
-                Check River & Highway Intersections
-              </Button>
-
-              <Button
-                variant={
-                  activeTool === "create-5km-analysis" ? "default" : "outline"
-                }
-                size="sm"
-                onClick={() => {
-                  setActiveTool(
-                    activeTool === "create-5km-analysis"
-                      ? null
-                      : "create-5km-analysis"
-                  );
-                  create5kmAnganwadiSchoolAnalysis();
-                }}
-                className={`w-full justify-start text-xs h-8 ${
-                  activeTool === "create-5km-analysis"
-                    ? "bg-purple-500 text-white hover:bg-purple-600"
-                    : "hover:bg-gray-50"
-                }`}
-              >
-                <Calculator className="h-3 w-3 mr-2" />
-                Create 5km Anganwadi-School Analysis
-              </Button>
-
-              <Button
-                variant={
-                  activeTool === "connect-anganwadi-schools"
-                    ? "default"
-                    : "outline"
-                }
-                size="sm"
-                onClick={() => {
-                  setActiveTool(
-                    activeTool === "connect-anganwadi-schools"
-                      ? null
-                      : "connect-anganwadi-schools"
-                  );
-                  connectAnganwadiToSchools();
-                }}
-                className={`w-full justify-start text-xs h-8 ${
-                  activeTool === "connect-anganwadi-schools"
-                    ? "bg-orange-500 text-white hover:bg-orange-600"
-                    : "hover:bg-gray-50"
-                }`}
-              >
-                <Radio className="h-3 w-3 mr-2" />
-                Connect Anganwadi to Schools
+                📑 Generate Report
               </Button>
             </div>
+          </div>
+
+          {/* General Analysis Tools */}
+          <div className="space-y-3 pt-3 border-t border-gray-200">
+            <h3 className="text-sm font-medium text-gray-900">General Tools</h3>
+            {/* <AnalysisTools
+              onMeasureDistance={() => console.log('Measure distance')}
+              onMeasureArea={() => console.log('Measure area')}
+              onBufferAnalysis={() => console.log('Buffer analysis')}
+              onSpatialQuery={() => console.log('Spatial query')}
+              onExportData={() => console.log('Export data')}
+              onGenerateReport={() => console.log('Generate report')}
+            /> */}
           </div>
 
           {/* Clear Map */}
@@ -627,8 +517,11 @@ export const SecondarySidebar: React.FC<SecondarySidebarProps> = ({
               onClick={onClearMap}
               className="w-full justify-start text-xs h-8"
             >
-              🗑️ Clear Map
+              🗑️ Clear Map & Reset
             </Button>
+            <p className="text-xs text-gray-500 mt-1 text-center">
+              Resets to district-level view
+            </p>
           </div>
         </div>
       )}

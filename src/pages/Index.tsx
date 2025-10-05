@@ -1,26 +1,26 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
-import { Header } from "@/components/Header";
-import { Sidebar } from "@/components/Sidebar";
-import { SecondarySidebar } from "@/components/SecondarySidebar";
-import { MobileBottomNav } from "@/components/MobileBottomNav";
-import { MapContainer } from "@/components/MapContainer";
-import { LocationSearchBar } from "@/components/LocationSearchBar";
-import { MapControls } from "@/components/MapControls";
-import { RightSidePanel } from "@/components/RightSidePanel";
-import { SettingsModal } from "@/components/SettingsModal";
-import { HelpModal } from "@/components/HelpModal";
-import { UserProfileModal } from "@/components/UserProfileModal";
-import { EditProfileModal } from "@/components/EditProfileModal";
-import { ChangePasswordModal } from "@/components/ChangePasswordModal";
-import { useAppStore } from "@/lib/store";
-import { ClusterPoint } from "@/lib/mapUtils";
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { Header } from '@/components/Header';
+import { Sidebar } from '@/components/Sidebar';
+import { SecondarySidebar } from '@/components/SecondarySidebar';
+import { MobileBottomNav } from '@/components/MobileBottomNav';
+import { MapContainer } from '@/components/MapContainer';
+import { LocationSearchBar } from '@/components/LocationSearchBar';
+import { MapControls } from '@/components/MapControls';
+import { RightSidePanel } from '@/components/RightSidePanel';
+import { SettingsModal } from '@/components/SettingsModal';
+import { HelpModal } from '@/components/HelpModal';
+import { UserProfileModal } from '@/components/UserProfileModal';
+import { EditProfileModal } from '@/components/EditProfileModal';
+import { ChangePasswordModal } from '@/components/ChangePasswordModal';
+import { useAppStore } from '@/lib/store';
+import { ClusterPoint } from '@/lib/mapUtils';
 
 // Import the core mapping logic from the original project
-import { PreschoolMapView } from "@/components/PreschoolMapView";
+import { PreschoolMapView } from '@/components/PreschoolMapView';
 
 export default function Index() {
-  const {
-    selectedLayers,
+  const { 
+    selectedLayers, 
     setSelectedLayers,
     showSettingsModal,
     showHelpModal,
@@ -31,7 +31,7 @@ export default function Index() {
     setShowHelpModal,
     setShowUserProfileModal,
     setShowEditProfileModal,
-    setShowChangePasswordModal,
+    setShowChangePasswordModal
   } = useAppStore();
 
   // Preschool-specific state management
@@ -68,9 +68,7 @@ export default function Index() {
   const [showClusterDemo, setShowClusterDemo] = useState(true);
 
   // Map info and controls state
-  const [currentCoordinates, setCurrentCoordinates] = useState<
-    [number, number]
-  >([82.0, 21.5]);
+  const [currentCoordinates, setCurrentCoordinates] = useState<[number, number]>([82.0, 21.5]);
   const [currentZoom, setCurrentZoom] = useState(7);
   const [currentElevation, setCurrentElevation] = useState(0);
   const [showRightPanel, setShowRightPanel] = useState(true);
@@ -140,7 +138,7 @@ export default function Index() {
 
     // Enable layers when district is selected
     if (dist) {
-      setLayersVisibility((prev) => ({
+      setLayersVisibility(prev => ({
         ...prev,
         village: true,
         anganwadi: true,
@@ -149,12 +147,15 @@ export default function Index() {
     }
 
     setIsLoading(true);
-    setLoadingMessage("Loading district data...");
+    setLoadingMessage("Loading district data and preparing map...");
 
-    // Hide loading after a delay (or when data actually loads)
+    // Simulate realistic loading time for data fetching
     setTimeout(() => {
-      setIsLoading(false);
-    }, 2000);
+      setLoadingMessage("Loading anganwadis and schools...");
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 1500);
+    }, 1000);
   };
 
   const generateBufferReport = () => {
@@ -173,22 +174,22 @@ export default function Index() {
   };
 
   const handleEditProfile = (newUserData: any) => {
-    console.log("Profile updated:", newUserData);
+    console.log('Profile updated:', newUserData);
     setShowEditProfileModal(false);
   };
 
   const handleChangePassword = (passwordData: any) => {
-    console.log("Password changed:", passwordData);
+    console.log('Password changed:', passwordData);
     setShowChangePasswordModal(false);
   };
 
   const handleCloseEditProfile = () => {
-    console.log("Index: handleCloseEditProfile called");
+    console.log('Index: handleCloseEditProfile called');
     setShowEditProfileModal(false);
   };
 
   const handleCloseChangePassword = () => {
-    console.log("Index: handleCloseChangePassword called");
+    console.log('Index: handleCloseChangePassword called');
     setShowChangePasswordModal(false);
   };
 
@@ -196,14 +197,14 @@ export default function Index() {
     <div className="min-h-screen bg-gray-100 flex flex-col">
       {/* Header */}
       <Header />
-
+      
       {/* Main Content Area */}
       <div className="flex flex-1 min-h-0">
         {/* Sidebar */}
         <Sidebar onLayerSelectionChange={handleLayerSelectionChange} />
-
+        
         {/* Secondary Sidebar */}
-        <SecondarySidebar
+        <SecondarySidebar 
           onLayerSelectionChange={handleLayerSelectionChange}
           layersVisibility={layersVisibility}
           toggleLayer={toggleLayer}
@@ -215,30 +216,44 @@ export default function Index() {
           onVillageChange={setSelectedVillage}
           bufferRadius={bufferRadius}
           setBufferRadius={setBufferRadius}
-          highlightSchoolsInBuffers={
-            (mapTools as any)?.highlightSchoolsInBuffers ||
-            (() => console.warn("Function not ready"))
-          }
-          connectAnganwadiToNearestSchool={
-            (mapTools as any)?.connectAnganwadiToNearestSchool ||
-            (() => console.warn("Function not ready"))
-          }
-          checkInfrastructureRisks={
-            (mapTools as any)?.checkInfrastructureRisks ||
-            (() => console.warn("Check Infrastructure Risks function not ready"))
-          }
-          checkRiverHighwayIntersections={
-            (mapTools as any)?.checkRiverHighwayIntersections ||
-            (() => console.warn("Check River & Highway Intersections function not ready"))
-          }
-          create5kmAnganwadiSchoolAnalysis={
-            (mapTools as any)?.create5kmAnganwadiSchoolAnalysis ||
-            (() => console.warn("Create 5km Anganwadi-School Analysis function not ready"))
-          }
-          connectAnganwadiToSchools={
-            (mapTools as any)?.connectAnganwadiToSchools ||
-            (() => console.warn("Connect Anganwadi to Schools function not ready"))
-          }
+          highlightSchoolsInBuffers={() => {
+            if ((mapTools as any)?.highlightSchoolsInBuffers) {
+              setIsLoading(true);
+              setLoadingMessage(`Creating ${bufferRadius}km buffers around schools...`);
+              
+              // Execute the buffer function
+              (mapTools as any).highlightSchoolsInBuffers();
+              
+              // Simulate buffer completion time
+              setTimeout(() => {
+                setLoadingMessage("Finalizing buffer analysis...");
+                setTimeout(() => {
+                  setIsLoading(false);
+                }, 800);
+              }, 1500);
+            } else {
+              console.warn("Function not ready");
+            }
+          }}
+          connectAnganwadiToNearestSchool={() => {
+            if ((mapTools as any)?.connectAnganwadiToNearestSchool) {
+              setIsLoading(true);
+              setLoadingMessage(`Analyzing connections with ${bufferRadius}km buffer...`);
+              
+              // Execute the connection function
+              (mapTools as any).connectAnganwadiToNearestSchool();
+              
+              // Simulate connection analysis time
+              setTimeout(() => {
+                setLoadingMessage("Detecting obstacles and finalizing routes...");
+                setTimeout(() => {
+                  setIsLoading(false);
+                }, 1200);
+              }, 1800);
+            } else {
+              console.warn("Function not ready");
+            }
+          }}
           generateBufferReport={() => {
             if ((mapTools as any)?.generateBufferReport) {
               const data = (mapTools as any).generateBufferReport();
@@ -253,18 +268,108 @@ export default function Index() {
           onClearMap={handleClearMap}
           isLoading={isLoading}
           loadingMessage={loadingMessage}
-          checkSchoolInfrastructureIntersections={() =>
-            mapViewRef.current?.checkSchoolInfrastructureIntersections()
-          }
         />
-
+        
         {/* Map Container */}
         <main className="flex-1 relative min-w-0 lg:map-responsive pb-16 lg:pb-0">
-          {/* Location Search Bar */}
+        {/* Gap Analysis Button */}
+        <div className="absolute top-20 right-4 z-30 space-y-2">
+          {/* Dynamic Buffer Range Selector */}
+          <div className="bg-white p-3 rounded-lg shadow-lg border">
+            <label className="block text-xs font-medium text-gray-700 mb-2">
+              Buffer Range (km)
+            </label>
+            <input
+              type="range"
+              min="1"
+              max="10"
+              step="0.5"
+              value={bufferRadius}
+              onChange={(e) => setBufferRadius(parseFloat(e.target.value))}
+              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+            />
+            <div className="flex justify-between text-xs text-gray-600 mt-1">
+              <span>1km</span>
+              <span className="font-medium">{bufferRadius}km</span>
+              <span>10km</span>
+            </div>
+          </div>
+          
+          <button
+            onClick={() => {
+              console.log("🔍 Gap Analysis button clicked");
+              console.log("MapTools available:", !!mapTools);
+              console.log("Available methods:", mapTools ? Object.keys(mapTools as any) : "No mapTools");
+              console.log("performGapAnalysis function:", typeof (mapTools as any)?.performGapAnalysis);
+              
+              // Set loading state for gap analysis
+              setIsLoading(true);
+              setLoadingMessage(`Performing gap analysis with ${bufferRadius}km buffer...`);
+              
+              // First test if ref is working at all
+              if ((mapTools as any)?.testFunction) {
+                (mapTools as any).testFunction();
+              } else {
+                console.log("❌ Even test function is not available - ref connection issue");
+              }
+              
+              // Try multiple times with delay to ensure component is ready
+              const tryGapAnalysis = (attempts = 0) => {
+                if ((mapTools as any)?.performGapAnalysis && typeof (mapTools as any)?.performGapAnalysis === 'function') {
+                  console.log("✅ Calling gap analysis function...");
+                  
+                  setTimeout(() => {
+                    setLoadingMessage("Analyzing anganwadi coverage...");
+                    setTimeout(() => {
+                      setLoadingMessage("Detecting infrastructure obstacles...");
+                      setTimeout(() => {
+                        (mapTools as any).performGapAnalysis();
+                        setIsLoading(false);
+                      }, 1000);
+                    }, 1000);
+                  }, 500);
+                } else if (attempts < 3) {
+                  console.log(`⏳ Retrying gap analysis (attempt ${attempts + 1}/3)...`);
+                  setTimeout(() => tryGapAnalysis(attempts + 1), 500);
+                } else {
+                  console.log("❌ Gap analysis function not ready after 3 attempts");
+                  setIsLoading(false);
+                  alert("Gap analysis not ready. Please wait for map to load completely.\n\nEnsure:\n• Green anganwadi dots are visible\n• Red school dots are visible\n• All layers have finished loading\n\nTry clicking the button again in a few seconds.");
+                }
+              };
+              
+              tryGapAnalysis();
+            }}
+            className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg shadow-lg font-medium text-sm transition-colors w-full"
+            title={`Find anganwadis without primary schools within ${bufferRadius}km`}
+            disabled={isLoading}
+          >
+            {isLoading ? '⏳ Analyzing...' : '🔍 Gap Analysis'}
+          </button>
+          
+         
+        </div>          {/* Location Search Bar */}
           <div className="absolute top-4 left-4 z-30 w-64 sm:w-72 lg:w-80">
             <LocationSearchBar />
           </div>
-
+          
+          
+          {/* Loading Overlay */}
+          {isLoading && (
+            <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+              <div className="bg-white p-6 rounded-lg shadow-xl flex flex-col items-center space-y-4 max-w-sm">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                <div className="text-center">
+                  <h3 className="text-lg font-semibold text-gray-900">Processing...</h3>
+                  <p className="text-sm text-gray-600 mt-1">{loadingMessage}</p>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="bg-blue-600 h-2 rounded-full animate-pulse" style={{width: '60%'}}></div>
+                </div>
+              </div>
+            </div>
+          )}
+          
           {/* Preschool Map View with integrated functionality */}
           <PreschoolMapView
             ref={mapViewRef}
@@ -332,14 +437,44 @@ export default function Index() {
               onVillageChange={setSelectedVillage}
               bufferRadius={bufferRadius}
               setBufferRadius={setBufferRadius}
-              highlightSchoolsInBuffers={
-                (mapTools as any)?.highlightSchoolsInBuffers ||
-                (() => console.warn("Function not ready"))
-              }
-              connectAnganwadiToNearestSchool={
-                (mapTools as any)?.connectAnganwadiToNearestSchool ||
-                (() => console.warn("Function not ready"))
-              }
+              highlightSchoolsInBuffers={() => {
+                if ((mapTools as any)?.highlightSchoolsInBuffers) {
+                  setIsLoading(true);
+                  setLoadingMessage(`Creating ${bufferRadius}km buffers around schools...`);
+                  
+                  // Execute the buffer function
+                  (mapTools as any).highlightSchoolsInBuffers();
+                  
+                  // Simulate buffer completion time
+                  setTimeout(() => {
+                    setLoadingMessage("Finalizing buffer analysis...");
+                    setTimeout(() => {
+                      setIsLoading(false);
+                    }, 800);
+                  }, 1500);
+                } else {
+                  console.warn("Function not ready");
+                }
+              }}
+              connectAnganwadiToNearestSchool={() => {
+                if ((mapTools as any)?.connectAnganwadiToNearestSchool) {
+                  setIsLoading(true);
+                  setLoadingMessage(`Analyzing connections with ${bufferRadius}km buffer...`);
+                  
+                  // Execute the connection function
+                  (mapTools as any).connectAnganwadiToNearestSchool();
+                  
+                  // Simulate connection analysis time
+                  setTimeout(() => {
+                    setLoadingMessage("Detecting obstacles and finalizing routes...");
+                    setTimeout(() => {
+                      setIsLoading(false);
+                    }, 1200);
+                  }, 1800);
+                } else {
+                  console.warn("Function not ready");
+                }
+              }}
               generateBufferReport={() => {
                 if ((mapTools as any)?.generateBufferReport) {
                   const data = (mapTools as any).generateBufferReport();
@@ -392,20 +527,39 @@ export default function Index() {
               flexDirection: "column",
             }}
           >
-            {/* Header with title + close icon */}
+            {/* Government Header */}
             <div
               style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                borderBottom: "1px solid #ddd",
-                marginBottom: "15px",
-                paddingBottom: "8px",
+                background: "#ffffff",
+                padding: "20px",
+                borderBottom: "3px solid #2c3e50",
+                marginBottom: "0px",
+                textAlign: "center"
               }}
             >
-              <h2 style={{ margin: 0, color: "#2c3e50" }}>
-                Anganwadi Buffer Report
-              </h2>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "10px" }}>
+                <div style={{ width: "40px", height: "40px", backgroundColor: "#e74c3c", borderRadius: "50%", marginRight: "15px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <span style={{ color: "white", fontSize: "20px", fontWeight: "bold" }}>CG</span>
+                </div>
+                <div>
+                  <h2 style={{ margin: 0, fontSize: "18px", fontWeight: "600", color: "#2c3e50" }}>
+                    GOVERNMENT OF CHHATTISGARH
+                  </h2>
+                  <h3 style={{ margin: "3px 0 0 0", fontSize: "14px", fontWeight: "400", color: "#34495e" }}>
+                    Department of Women & Child Development
+                  </h3>
+                </div>
+              </div>
+              <div style={{ borderTop: "1px solid #bdc3c7", paddingTop: "8px" }}>
+                <h4 style={{ margin: 0, fontSize: "13px", fontWeight: "500", color: "#7f8c8d", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                  ANGANWADI PRIMARY SCHOOL ACCESSIBILITY ANALYSIS
+                </h4>
+                <p style={{ margin: "3px 0 0 0", fontSize: "11px", color: "#95a5a6" }}>
+                  Educational Infrastructure Coverage Assessment Report (5km Radius)
+                </p>
+              </div>
+            </div>
+            <div style={{ display: "flex", justifyContent: "flex-end", padding: "10px 20px", background: "#f8f9fa", borderBottom: "1px solid #dee2e6" }}>
               <span
                 onClick={handleClosePopup}
                 style={{
@@ -419,105 +573,124 @@ export default function Index() {
               </span>
             </div>
 
-            {/* Dashboard Summary Cards */}
+            {/* Executive Summary */}
             <div
               style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
-                gap: "15px",
+                background: "#f8f9fa",
+                padding: "20px",
                 marginBottom: "20px",
+                border: "1px solid #dee2e6"
               }}
             >
+              <h5 style={{ margin: "0 0 15px 0", fontSize: "14px", fontWeight: "600", color: "#495057", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                📊 EXECUTIVE SUMMARY
+              </h5>
               <div
                 style={{
-                  background: "#3498db",
-                  color: "white",
-                  padding: "15px",
-                  borderRadius: "8px",
-                  textAlign: "center",
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
+                  gap: "15px"
                 }}
               >
-                <h3 style={{ margin: 0 }}>{bufferReport.length}</h3>
-                <p style={{ margin: 0 }}>Total Anganwadis</p>
-              </div>
-              <div
-                style={{
-                  background: "#2ecc71",
-                  color: "white",
-                  padding: "15px",
-                  borderRadius: "8px",
-                  textAlign: "center",
-                }}
-              >
-                <h3 style={{ margin: 0 }}>
-                  {new Set(bufferReport.map((r: any) => r.district)).size}
-                </h3>
-                <p style={{ margin: 0 }}>Districts Covered</p>
-              </div>
-              <div
-                style={{
-                  background: "#f39c12",
-                  color: "white",
-                  padding: "15px",
-                  borderRadius: "8px",
-                  textAlign: "center",
-                }}
-              >
-                <h3 style={{ margin: 0 }}>
-                  {new Set(bufferReport.map((r: any) => r.village)).size}
-                </h3>
-                <p style={{ margin: 0 }}>Villages Covered</p>
-              </div>
-              <div
-                style={{
-                  background: "#9b59b6",
-                  color: "white",
-                  padding: "15px",
-                  borderRadius: "8px",
-                  textAlign: "center",
-                }}
-              >
-                <h3 style={{ margin: 0 }}>
-                  {bufferReport.reduce(
-                    (sum: number, r: any) => sum + (r.numberOfSchools || 0),
-                    0
-                  )}
-                </h3>
-                <p style={{ margin: 0 }}>Total Schools</p>
-              </div>
-              <div
-                style={{
-                  background: "#27ae60",
-                  color: "white",
-                  padding: "15px",
-                  borderRadius: "8px",
-                  textAlign: "center",
-                }}
-              >
-                <h3 style={{ margin: 0 }}>
-                  {
-                    bufferReport.filter((r: any) => r.numberOfSchools > 0)
-                      .length
-                  }
-                </h3>
-                <p style={{ margin: 0 }}>Covered Anganwadis</p>
-              </div>
-              <div
-                style={{
-                  background: "#e74c3c",
-                  color: "white",
-                  padding: "15px",
-                  borderRadius: "8px",
-                  textAlign: "center",
-                }}
-              >
-                <h3 style={{ margin: 0 }}>
-                  {
-                    bufferReport.filter((r: any) => r.numberOfSchools === 0)
-                      .length
-                  }
-                </h3>
-                <p style={{ margin: 0 }}>Non-Covered Anganwadis</p>
+                <div
+                  style={{
+                    background: "#ffffff",
+                    border: "1px solid #dee2e6",
+                    padding: "12px",
+                    textAlign: "center",
+                    borderLeft: "4px solid #007bff"
+                  }}
+                >
+                  <div style={{ fontSize: "20px", fontWeight: "600", color: "#007bff", marginBottom: "4px" }}>
+                    {bufferReport.length}
+                  </div>
+                  <div style={{ fontSize: "11px", color: "#6c757d", fontWeight: "500" }}>
+                    Total Anganwadis
+                  </div>
+                </div>
+                <div
+                  style={{
+                    background: "#ffffff",
+                    border: "1px solid #dee2e6",
+                    padding: "12px",
+                    textAlign: "center",
+                    borderLeft: "4px solid #28a745"
+                  }}
+                >
+                  <div style={{ fontSize: "20px", fontWeight: "600", color: "#28a745", marginBottom: "4px" }}>
+                    {new Set(bufferReport.map((r: any) => r.district)).size}
+                  </div>
+                  <div style={{ fontSize: "11px", color: "#6c757d", fontWeight: "500" }}>
+                    Districts Covered
+                  </div>
+                </div>
+                <div
+                  style={{
+                    background: "#ffffff",
+                    border: "1px solid #dee2e6",
+                    padding: "12px",
+                    textAlign: "center",
+                    borderLeft: "4px solid #fd7e14"
+                  }}
+                >
+                  <div style={{ fontSize: "20px", fontWeight: "600", color: "#fd7e14", marginBottom: "4px" }}>
+                    {new Set(bufferReport.map((r: any) => r.village)).size}
+                  </div>
+                  <div style={{ fontSize: "11px", color: "#6c757d", fontWeight: "500" }}>
+                    Villages Covered
+                  </div>
+                </div>
+                <div
+                  style={{
+                    background: "#ffffff",
+                    border: "1px solid #dee2e6",
+                    padding: "12px",
+                    textAlign: "center",
+                    borderLeft: "4px solid #6f42c1"
+                  }}
+                >
+                  <div style={{ fontSize: "20px", fontWeight: "600", color: "#6f42c1", marginBottom: "4px" }}>
+                    {bufferReport.reduce(
+                      (sum: number, r: any) => sum + (r.numberOfSchools || 0),
+                      0
+                    )}
+                  </div>
+                  <div style={{ fontSize: "11px", color: "#6c757d", fontWeight: "500" }}>
+                    Total Schools
+                  </div>
+                </div>
+                <div
+                  style={{
+                    background: "#ffffff",
+                    border: "1px solid #dee2e6",
+                    padding: "12px",
+                    textAlign: "center",
+                    borderLeft: "4px solid #20c997"
+                  }}
+                >
+                  <div style={{ fontSize: "20px", fontWeight: "600", color: "#20c997", marginBottom: "4px" }}>
+                    {bufferReport.filter((r: any) => r.numberOfSchools > 0).length}
+                  </div>
+                  <div style={{ fontSize: "11px", color: "#6c757d", fontWeight: "500" }}>
+                    Covered Anganwadis
+                  </div>
+                </div>
+                <div
+                  style={{
+                    background: "#ffffff",
+                    border: "1px solid #dee2e6",
+                    padding: "12px",
+                    textAlign: "center",
+                    borderLeft: "4px solid #dc3545"
+                  }}
+                >
+                  <div style={{ fontSize: "20px", fontWeight: "600", color: "#dc3545", marginBottom: "4px" }}>
+                    {bufferReport.filter((r: any) => r.numberOfSchools === 0).length}
+                  </div>
+                  <div style={{ fontSize: "11px", color: "#6c757d", fontWeight: "500" }}>
+                    Non-Covered Anganwadis
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -610,7 +783,7 @@ export default function Index() {
                               border: "1px solid #ddd",
                             }}
                           >
-                            {row.schoolNames.join("; ")}
+                            {row.schoolNames && Array.isArray(row.schoolNames) ? row.schoolNames.join("; ") : "No schools found"}
                           </td>
                           <td
                             style={{
@@ -621,7 +794,7 @@ export default function Index() {
                               color: "#2c3e50",
                             }}
                           >
-                            {row.distance?.toFixed(2) || "-"}
+                            {row.nearestSchoolDistance || "-"}
                           </td>
                         </tr>
                       );
@@ -686,7 +859,8 @@ export default function Index() {
                     )
                   }
                   disabled={
-                    currentPage === Math.ceil(bufferReport.length / rowsPerPage)
+                    currentPage ===
+                    Math.ceil(bufferReport.length / rowsPerPage)
                   }
                   style={{
                     padding: "5px 10px",
@@ -714,17 +888,17 @@ export default function Index() {
       )}
 
       {/* Modals */}
-      <SettingsModal
-        isOpen={showSettingsModal}
-        onClose={() => setShowSettingsModal(false)}
+      <SettingsModal 
+        isOpen={showSettingsModal} 
+        onClose={() => setShowSettingsModal(false)} 
       />
-      <HelpModal
-        isOpen={showHelpModal}
-        onClose={() => setShowHelpModal(false)}
+      <HelpModal 
+        isOpen={showHelpModal} 
+        onClose={() => setShowHelpModal(false)} 
       />
-      <UserProfileModal
-        isOpen={showUserProfileModal}
-        onClose={() => setShowUserProfileModal(false)}
+      <UserProfileModal 
+        isOpen={showUserProfileModal} 
+        onClose={() => setShowUserProfileModal(false)} 
       />
       <EditProfileModal
         isOpen={showEditProfileModal}
