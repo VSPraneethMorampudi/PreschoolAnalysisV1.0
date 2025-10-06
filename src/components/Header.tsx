@@ -37,8 +37,17 @@ export const Header: React.FC = () => {
   return (
     <TooltipProvider>
       <header 
-        className="h-12 flex items-center justify-between px-3 shadow-md z-50 border-b border-emerald-600 w-full bg-emerald-600"
+        className="h-12 flex items-center justify-between px-3 shadow-md z-50 border-b border-emerald-600 w-full relative"
+        style={{
+          backgroundImage: `url('/images/11.jpg'), url('/images/12.avif')`,
+          backgroundSize: 'cover, cover',
+          backgroundPosition: 'center, center',
+          backgroundRepeat: 'no-repeat, no-repeat',
+          backgroundBlendMode: 'multiply, overlay'
+        }}
       >
+        {/* Background Overlay */}
+        <div className="absolute inset-0 bg-emerald-600 bg-opacity-30"></div>
         
         {/* Content */}
         <div className="relative z-10 flex items-center justify-between w-full">
@@ -50,10 +59,10 @@ export const Header: React.FC = () => {
               className="h-9 w-9"
             />
             <div>
-              <h1 className="text-white text-xs font-bold leading-tight">
+              <h1 className="text-white text-lg font-bold leading-tight drop-shadow-md">
                 {selectedLanguage === 'hi' ? 'छत्तीसगढ़ भू-पोर्टल' : 'Chhattisgarh Geo Portal'}
               </h1>
-              <p className="text-emerald-200 text-[10px] leading-tight">
+              <p className="text-emerald-100 text-sm leading-tight drop-shadow-sm">
                 {selectedLanguage === 'hi' ? 'राज्य भौगोलिक सूचना प्रणाली' : 'State Geographic Information System'}
               </p>
             </div>
@@ -63,7 +72,7 @@ export const Header: React.FC = () => {
         {/* Center Department Display */}
         <div className="flex-1 flex justify-center">
             <div className="text-center">
-              <p className="text-blue-100 text-[12px] leading-tight font-semibold">
+              <p className="text-white text-xl leading-tight font-bold drop-shadow-md">
                 {getDepartmentName(selectedDepartment, selectedLanguage)}
               </p>
             </div>

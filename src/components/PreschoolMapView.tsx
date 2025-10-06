@@ -13,7 +13,7 @@ import OSM from "ol/source/OSM";
 import VectorLayer from "ol/layer/Vector";
 import VectorSource from "ol/source/Vector";
 import Overlay from "ol/Overlay";
-import { Style, Stroke, Fill, Circle as CircleStyle, Text } from "ol/style";
+import { Style, Stroke, Fill, Circle as CircleStyle, Text, RegularShape } from "ol/style";
 import { fromLonLat, toLonLat, transform } from "ol/proj";
 import { defaults as defaultControls } from "ol/control";
 import { Feature } from "ol";
@@ -40,6 +40,17 @@ const styleDot = (fill: string) =>
     }),
   });
 
+const styleTriangle = (fill: string) =>
+  new Style({
+    image: new RegularShape({
+      fill: new Fill({ color: fill }),
+      stroke: new Stroke({ color: "#000", width: 1 }),
+      points: 3,
+      radius: 6,
+      angle: 0,
+    }),
+  });
+
 const styleDashLine = (textGetter?: () => string) =>
   new Style({
     stroke: new Stroke({ color: "brown", width: 2, lineDash: [4, 4] }),
@@ -52,93 +63,7 @@ const styleDashLine = (textGetter?: () => string) =>
     }),
   });
 
-// Create map legend overlay
-const createMapLegend = (map: Map) => {
-  // Create legend container
-  const legendDiv = document.createElement('div');
-  legendDiv.className = 'map-legend';
-  legendDiv.style.cssText = `
-    position: absolute;
-    top: 75px;
-    left: 10px;
-    background: rgba(255, 255, 255, 0.95);
-    border: 2px solid #333;
-    border-radius: 8px;
-    padding: 12px;
-    font-family: Arial, sans-serif;
-    font-size: 12px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-    z-index: 1000;
-    min-width: 200px;
-    max-width: 250px;
-    backdrop-filter: blur(5px);
-  `;
 
-  legendDiv.innerHTML = `
-    <div style="margin-bottom: 10px; text-align: center; font-weight: bold; font-size: 14px; color: #333; border-bottom: 1px solid #ddd; padding-bottom: 8px;">
-      🗺️ MAP LEGEND
-    </div>
-    
-    <div style="margin-bottom: 8px;">
-      <div style="font-weight: bold; color: #2c3e50; margin-bottom: 4px;">Educational Facilities</div>
-      <div style="display: flex; align-items: center; margin-bottom: 3px;">
-        <div style="width: 12px; height: 12px; background: #00C853; border-radius: 50%; margin-right: 8px; border: 1px solid #000;"></div>
-        <span>Anganwadi Centers</span>
-      </div>
-      <div style="display: flex; align-items: center; margin-bottom: 3px;">
-        <div style="width: 12px; height: 12px; background: #f44336; border-radius: 50%; margin-right: 8px; border: 1px solid #000;"></div>
-        <span>Primary Schools</span>
-      </div>
-      <div style="display: flex; align-items: center; margin-bottom: 3px;">
-        <div style="width: 12px; height: 12px; background: #000; border-radius: 50%; margin-right: 8px; border: 2px solid #fff;"></div>
-        <span>Uncovered Anganwadis</span>
-      </div>
-    </div>
-
-    <div style="margin-bottom: 8px;">
-      <div style="font-weight: bold; color: #2c3e50; margin-bottom: 4px;">Infrastructure</div>
-      <div style="display: flex; align-items: center; margin-bottom: 3px;">
-        <div style="width: 20px; height: 2px; background: #8B4513; margin-right: 8px;"></div>
-        <span>Railway Lines</span>
-      </div>
-      <div style="display: flex; align-items: center; margin-bottom: 3px;">
-        <div style="width: 20px; height: 3px; background: #666; margin-right: 8px;"></div>
-        <span>Roads</span>
-      </div>
-      <div style="display: flex; align-items: center; margin-bottom: 3px;">
-        <div style="width: 20px; height: 2px; background: #4169E1; margin-right: 8px;"></div>
-        <span>Rivers</span>
-      </div>
-    </div>
-
-    <div style="margin-bottom: 8px;">
-      <div style="font-weight: bold; color: #2c3e50; margin-bottom: 4px;">Analysis</div>
-      <div style="display: flex; align-items: center; margin-bottom: 3px;">
-        <div style="width: 20px; height: 2px; background: #0066ff; margin-right: 8px;"></div>
-        <span>Clear Connections</span>
-      </div>
-      <div style="display: flex; align-items: center; margin-bottom: 3px;">
-        <div style="width: 20px; height: 2px; background: #FF8C00; margin-right: 8px;"></div>
-        <span>Obstacle Routes</span>
-      </div>
-      <div style="display: flex; align-items: center; margin-bottom: 3px;">
-        <div style="width: 20px; height: 2px; background: #FF0000; border: 1px dashed #FF0000; margin-right: 8px;"></div>
-        <span>Gap Areas (5km)</span>
-      </div>
-    </div>
-
-    <div style="font-size: 10px; color: #666; text-align: center; margin-top: 8px; border-top: 1px solid #ddd; padding-top: 6px;">
-      Click markers for details
-    </div>
-  `;
-
-  // Add legend to map container
-  const mapContainer = map.getTargetElement();
-  if (mapContainer) {
-    mapContainer.style.position = 'relative';
-    mapContainer.appendChild(legendDiv);
-  }
-};
 
 interface PreschoolMapViewProps {
   layersVisibility: any;
@@ -318,18 +243,19 @@ export const PreschoolMapView = forwardRef<any, PreschoolMapViewProps>(
         source,
         style: new Style({
           image: new CircleStyle({
-            radius: 8,
+            radius: 10,
             fill: new Fill({ color: 'black' }),
-            stroke: new Stroke({ color: 'white', width: 2 })
+            stroke: new Stroke({ color: 'white', width: 3 })
           })
         }),
-        zIndex: 1000
+        zIndex: 1500  // Higher than anganwadi layer (20)
       });
+      layer.set('name', 'uncoveredLayer');
       
       refs.current.uncoveredLayer = layer;
       map.addLayer(layer);
       
-      console.log(`Created ${features.length} uncovered markers`);
+      console.log(`✅ Created ${features.length} uncovered markers as black circles with z-index ${layer.getZIndex()}`);
     };
 
     // Gap Analysis - Find uncovered anganwadis
@@ -462,10 +388,12 @@ export const PreschoolMapView = forwardRef<any, PreschoolMapViewProps>(
           const strokeColor = isObstacleBlocked ? "#FFD700" : "#FFFFFF"; // Gold for obstacles, white for distance
           
           aw.setStyle(new Style({
-            image: new CircleStyle({
-              radius: 10,
+            image: new RegularShape({
               fill: new Fill({ color: fillColor }),
               stroke: new Stroke({ color: strokeColor, width: 3 }),
+              points: 3,
+              radius: 12,
+              angle: 0,
             }),
           }));
         }
@@ -598,17 +526,193 @@ export const PreschoolMapView = forwardRef<any, PreschoolMapViewProps>(
       };
     };
 
+    // Export Gap Analysis Alerts function
+    const exportGapAnalysisAlerts = (gapData: any) => {
+      if (!gapData || !gapData.uncoveredDetails || gapData.uncoveredDetails.length === 0) {
+        alert("No gap analysis alerts available for export. Please run gap analysis first.");
+        return;
+      }
+      
+      console.log("📤 Exporting gap analysis alerts report...");
+      
+      const csvEscape = (value: any) => `"${String(value).replace(/"/g, '""')}"`;
+      
+      // Professional alert report headers
+      const headers = [
+        "Alert_ID",
+        "Severity_Level",
+        "Anganwadi_Name", 
+        "AWC_Code",
+        "District",
+        "Block",
+        "Village",
+        "Gram_Panchayat",
+        "Latitude",
+        "Longitude",
+        "Nearest_School_Distance_KM",
+        "Coverage_Status",
+        "Gap_Category",
+        "Alert_Reason",
+        "Infrastructure_Barriers",
+        "Priority_Score",
+        "Recommended_Action",
+        "Target_Implementation_Timeline",
+        "Estimated_Beneficiaries",
+        "Assessment_Date",
+        "Officer_Remarks"
+      ];
+      
+      const alertRows = gapData.uncoveredDetails.map((gap: any, index: number) => {
+        const getSeverity = () => {
+          if (gap.nearestSchoolDistance > 10) return 'CRITICAL';
+          if (gap.nearestSchoolDistance > 7.5) return 'HIGH';
+          if (gap.nearestSchoolDistance > 5) return 'MEDIUM';
+          if (gap.blockingObstacles?.length > 0) return 'INFRASTRUCTURE_BLOCKED';
+          return 'LOW';
+        };
+        
+        const getPriorityScore = () => {
+          const distance = gap.nearestSchoolDistance;
+          let score = Math.max(1, 11 - Math.floor(distance));
+          if (gap.blockingObstacles?.length > 0) score += 2;
+          return Math.min(10, score);
+        };
+        
+        const getRecommendedAction = () => {
+          const severity = getSeverity();
+          switch (severity) {
+            case 'CRITICAL': return 'Immediate new primary school establishment within 3-5km radius';
+            case 'HIGH': return 'Priority area for educational infrastructure development';
+            case 'INFRASTRUCTURE_BLOCKED': return 'Address infrastructure barriers and improve connectivity';
+            default: return 'Monitor for future development planning';
+          }
+        };
+        
+        const getTimeline = () => {
+          const severity = getSeverity();
+          switch (severity) {
+            case 'CRITICAL': return '6-12 months (Immediate)';
+            case 'HIGH': return '12-24 months (Priority)';
+            case 'INFRASTRUCTURE_BLOCKED': return '12-18 months (Infrastructure dependent)';
+            default: return '24-36 months (Long-term planning)';
+          }
+        };
+        
+        const coordinates = gap.feature?.getGeometry()?.getCoordinates();
+        
+        return [
+          csvEscape(`GAP_${String(index + 1).padStart(4, '0')}`),
+          csvEscape(getSeverity()),
+          csvEscape(gap.properties?.awc_name || 'Unknown'),
+          csvEscape(gap.properties?.awc_code || 'N/A'),
+          csvEscape(gap.properties?.district || 'Unknown'),
+          csvEscape(gap.properties?.block || 'Unknown'),
+          csvEscape(gap.properties?.village || 'Unknown'),
+          csvEscape(gap.properties?.gram_panchayat || 'Unknown'),
+          csvEscape(coordinates ? coordinates[1].toFixed(6) : 'N/A'),
+          csvEscape(coordinates ? coordinates[0].toFixed(6) : 'N/A'),
+          csvEscape(gap.nearestSchoolDistance.toFixed(2)),
+          csvEscape('UNCOVERED'),
+          csvEscape(gap.gapSeverity || 'Distance Gap'),
+          csvEscape(gap.gapReason || 'No primary school within acceptable range'),
+          csvEscape(gap.blockingObstacles?.join('; ') || 'None detected'),
+          csvEscape(getPriorityScore()),
+          csvEscape(getRecommendedAction()),
+          csvEscape(getTimeline()),
+          csvEscape(gap.properties?.children_count || 'Unknown'),
+          csvEscape(new Date().toLocaleDateString('en-IN')),
+          csvEscape('System generated alert - Requires field verification')
+        ];
+      });
+      
+      // Create CSV content with government header
+      const csvContent = [
+        '# GAP ANALYSIS ALERTS REPORT',
+        '# Government of Chhattisgarh - Department of Women & Child Development',
+        '# Educational Infrastructure Coverage Assessment',
+        `# Generated: ${new Date().toLocaleString('en-IN')}`,
+        `# Analysis Radius: 5.00 kilometers`,
+        `# Total Alerts: ${gapData.uncoveredDetails.length}`,
+        '#',
+        headers.join(','),
+        ...alertRows.map(row => row.join(','))
+      ].join('\n');
+      
+      // Download CSV
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      if (link.download !== undefined) {
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', `gap_analysis_alerts_${new Date().toISOString().split('T')[0]}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        console.log(`✅ Gap analysis alerts exported: ${gapData.uncoveredDetails.length} records`);
+        alert(`✅ Gap Analysis Alerts Exported Successfully!\n\n📊 Report Details:\n• Total Alerts: ${gapData.uncoveredDetails.length}\n• Critical: ${gapData.criticalGaps}\n• High Priority: ${gapData.highPriorityGaps}\n• Infrastructure Blocked: ${gapData.infrastructureBlocked}\n\nFile saved as: gap_analysis_alerts_${new Date().toISOString().split('T')[0]}.csv`);
+      }
+    };
+
+    // Force refresh anganwadi styles to triangles
+    const forceTriangleStyle = () => {
+      const anganwadiSource = refs.current.anganwadiSource;
+      if (anganwadiSource) {
+        const anganwadis = anganwadiSource.getFeatures();
+        console.log(`🔺 Forcing ${anganwadis.length} anganwadis to triangle style`);
+        anganwadis.forEach((af) => {
+          af.setStyle(styleTriangle("#00C853"));
+        });
+        console.log("✅ All anganwadis forced to triangle style");
+      }
+    };
+
+    // Clear gap analysis results
+    const clearGapAnalysis = () => {
+      console.log("🧹 Clearing gap analysis results");
+      
+      // Remove uncovered markers layer
+      if (refs.current.uncoveredLayer) {
+        mapRef.current?.removeLayer(refs.current.uncoveredLayer);
+        refs.current.uncoveredLayer = null;
+        console.log("🗑️ Removed uncovered markers layer");
+      }
+      
+      // Reset anganwadi styles to normal triangles
+      const anganwadiSource = refs.current.anganwadiSource;
+      if (anganwadiSource) {
+        const anganwadis = anganwadiSource.getFeatures();
+        anganwadis.forEach((af) => {
+          af.setStyle(styleTriangle("#00C853"));
+        });
+      }
+
+      // Clear gap analysis layer
+      const gapLayer = mapRef.current?.getAllLayers().find((l) => l.get("name") === "gapAnalysisLayer") as VectorLayer;
+      if (gapLayer) {
+        const gapSource = gapLayer.getSource() as VectorSource;
+        gapSource?.clear();
+      }
+
+      // Clear any gap-specific markers or overlays
+      console.log("✅ Gap analysis cleared");
+    };
+
     // Expose methods to parent component
     useImperativeHandle(ref, () => ({
       mapRef: mapRef,
       generateBufferReport,
       exportBufferReport,
+      exportGapAnalysisAlerts,
       clearMap,
       highlightSchoolsInBuffers,
       connectAnganwadiToNearestSchool,
       checkSchoolInfrastructureIntersections,
       checkInfrastructureLayersStatus,
       performGapAnalysis,
+      clearGapAnalysis,
+      forceTriangleStyle,
       testFunction: () => {
         console.log("✅ Test function called successfully!");
         alert("Test function works - ref is properly connected!");
@@ -722,9 +826,6 @@ export const PreschoolMapView = forwardRef<any, PreschoolMapViewProps>(
             }),
           });
           mapRef.current = map;
-
-          // Create map legend
-          createMapLegend(map);
 
           // popup wiring
           const container = document.getElementById("popup");
@@ -1128,7 +1229,7 @@ export const PreschoolMapView = forwardRef<any, PreschoolMapViewProps>(
       const angLayer = upsertLayer("anganwadiLayer", () => {
         const src = new VectorSource();
         refs.current.anganwadiSource = src;
-        return new VectorLayer({ source: src, style: styleDot("#00C853") });
+        return new VectorLayer({ source: src, style: styleTriangle("#00C853") });
       });
       if (angLayer) {
         angLayer.set("name", "anganwadiLayer");
@@ -1222,8 +1323,8 @@ export const PreschoolMapView = forwardRef<any, PreschoolMapViewProps>(
       if (layer) {
         layer.set("name", "schoolLayer");
         layer.setZIndex(22);
-        // Always show school points (red dots)
-        layer.setVisible(true);
+        // Show school points only when enabled in layersVisibility
+        layer.setVisible(!!layersVisibility.schools);
 
         fetchJSON(wfsUrl({ typeName: "ch_dep_data:cg_school", cql }), {
           signal: abortController.signal,
@@ -1317,8 +1418,9 @@ export const PreschoolMapView = forwardRef<any, PreschoolMapViewProps>(
             source: railSource,
             style: new Style({
               stroke: new Stroke({ 
-                color: "#8B0000", // Dark red for better visibility
-                width: 4 // Thicker lines
+                color: "#8B4513", // Brown color for railways
+                width: 1, // Thin lines
+                lineDash: [3, 3] // Dashed pattern for railways
               }),
             }),
           });
@@ -1326,7 +1428,7 @@ export const PreschoolMapView = forwardRef<any, PreschoolMapViewProps>(
       );
       if (layer) {
         layer.set("name", "railLayer");
-        layer.setZIndex(15); // Higher z-index for better visibility
+        layer.setZIndex(5); // Lower z-index to stay behind schools
         layer.setVisible(!!layersVisibility.rail);
         console.log(`🚂 Rail layer visibility: ${!!layersVisibility.rail}`);
       }
@@ -1364,17 +1466,17 @@ export const PreschoolMapView = forwardRef<any, PreschoolMapViewProps>(
             source: riverSource,
             style: new Style({
               stroke: new Stroke({ 
-                color: "#1E90FF", // Bright blue for better visibility
-                width: 3 
+                color: "#4682B4", // Steel blue for rivers
+                width: 0.8 // Very thin lines
               }),
-              fill: new Fill({ color: "rgba(30, 144, 255, 0.2)" }),
+              fill: new Fill({ color: "rgba(70, 130, 180, 0.1)" }), // Very light fill
             }),
           });
         }
       );
       if (layer) {
         layer.set("name", "riverLayer");
-        layer.setZIndex(10); // Higher z-index for better visibility
+        layer.setZIndex(3); // Lower z-index to stay behind schools
         layer.setVisible(!!layersVisibility.river);
         console.log(`🌊 River layer visibility: ${!!layersVisibility.river}`);
       }
@@ -1412,8 +1514,8 @@ export const PreschoolMapView = forwardRef<any, PreschoolMapViewProps>(
             source: roadSource,
             style: new Style({
               stroke: new Stroke({ 
-                color: "#FF4500", // Orange-red for better visibility
-                width: 4 // Thicker lines
+                color: "#CD853F", // Peru color for roads
+                width: 0.8 // Very thin lines
               }),
             }),
           });
@@ -1421,7 +1523,7 @@ export const PreschoolMapView = forwardRef<any, PreschoolMapViewProps>(
       );
       if (layer) {
         layer.set("name", "roadLayer");
-        layer.setZIndex(12); // Higher z-index for better visibility
+        layer.setZIndex(4); // Lower z-index to stay behind schools
         layer.setVisible(!!layersVisibility.road);
         console.log(`🛣️ Highway layer visibility: ${!!layersVisibility.road}`);
       }
@@ -1538,7 +1640,7 @@ export const PreschoolMapView = forwardRef<any, PreschoolMapViewProps>(
 
         // Reset all styles first
         schools.forEach((sf) => sf.setStyle(styleDot("#f44336")));
-        anganwadis.forEach((af) => af.setStyle(styleDot("#00C853")));
+        anganwadis.forEach((af) => af.setStyle(styleTriangle("#00C853")));
 
         let connectionsCreated = 0;
         const BUFFER_RADIUS_KM = bufferRadius; // Dynamic buffer radius from props
@@ -1712,12 +1814,14 @@ export const PreschoolMapView = forwardRef<any, PreschoolMapViewProps>(
                     })
                   }));
                   
-                  // Orange anganwadi
+                  // Orange anganwadi (triangle)
                   anganwadi.setStyle(new Style({
-                    image: new CircleStyle({
-                      radius: 8,
+                    image: new RegularShape({
                       fill: new Fill({ color: "#FF8C00" }),
                       stroke: new Stroke({ color: "#fff", width: 2 }),
+                      points: 3,
+                      radius: 10,
+                      angle: 0,
                     }),
                   }));
                   
@@ -1916,6 +2020,7 @@ export const PreschoolMapView = forwardRef<any, PreschoolMapViewProps>(
           
           // School Names (for Index.tsx compatibility)
           schoolNames: schoolsInRange.map(s => s.name),
+          numberOfSchools: schoolsInRange.length, // For Index.tsx compatibility
           
           // School Categories Available
           primarySchools: schoolsInRange.filter(s => s.category === 'Primary').length,

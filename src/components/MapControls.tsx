@@ -3,6 +3,7 @@ import { ZoomIn, ZoomOut, Maximize, RotateCcw, Navigation, Layers, MapPin, Info 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useAppStore } from '@/lib/store';
+import { none } from 'ol/centerconstraint';
 
 interface MapControlsProps {
   onZoomIn: () => void;
@@ -34,7 +35,7 @@ export const MapControls: React.FC<MapControlsProps> = ({
   const { selectedLanguage } = useAppStore();
 
   return (
-    <div className="absolute top-4 right-4 z-20 space-y-2">
+    <div className="absolute top-4 right-4 z-20 space-y-2" style={{ display: 'none' }}>
       {/* Panel Toggle Controls */}
       <Card className="p-1 bg-white/95 backdrop-blur-sm shadow-lg">
         <div className="flex flex-col space-y-1">
