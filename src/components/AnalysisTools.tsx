@@ -35,7 +35,7 @@ export const AnalysisTools: React.FC<AnalysisToolsProps> = ({
     <Card className="w-full">
       <CardHeader className="pb-3">
         <CardTitle className="text-sm font-semibold text-gray-800 flex items-center space-x-2">
-          <Calculator className="h-4 w-4 text-emerald-600" />
+          <Calculator className="h-4 w-4 text-blue-600" />
           <span>
             {selectedLanguage === "hi" ? "विश्लेषण उपकरण" : "Analysis Tools"}
           </span>

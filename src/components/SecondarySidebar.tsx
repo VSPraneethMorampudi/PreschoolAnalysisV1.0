@@ -21,16 +21,19 @@ import { AnalysisTools } from "./AnalysisTools";
 import { DraggablePanel } from "./DraggablePanel";
 import { chhattisgarhLayerHierarchy } from "@/lib/layerData";
 import { useAppStore } from "@/lib/store";
+import { FiltersComponent } from "./FiltersComponent";
+
+import { LayerVisibility, District, Village } from "@/types/geoserver";
 
 interface SecondarySidebarProps {
   onLayerSelectionChange: (layers: string[]) => void;
-  layersVisibility?: any;
+  layersVisibility?: LayerVisibility;
   toggleLayer?: (layerId: string) => void;
-  districtOptions?: any[];
-  villageOptions?: any[];
-  selectedDistrict?: any;
+  districtOptions?: District[];
+  villageOptions?: Village[];
+  selectedDistrict?: string | null;
   selectedVillage?: string;
-  onDistrictChange?: (district: any) => void;
+  onDistrictChange?: (district: string | null) => void;
   onVillageChange?: (village: string) => void;
   bufferRadius?: number;
   setBufferRadius?: (radius: number) => void;
@@ -180,7 +183,7 @@ export const SecondarySidebar: React.FC<SecondarySidebarProps> = ({
           id: "road",
           name: "Highway",
           icon: TreePine,
-          color: "#ff89e2ff",
+          color: "#F5330A",
           description: "Road network",
         },
       ],
@@ -222,6 +225,8 @@ export const SecondarySidebar: React.FC<SecondarySidebarProps> = ({
         return selectedLanguage === "hi" ? "ड्रॉइंग उपकरण" : "Drawing Tools";
       case "analysis":
         return selectedLanguage === "hi" ? "विश्लेषण उपकरण" : "Analysis Tools";
+      case "filters":
+        return selectedLanguage === "hi" ? "फ़िल्टर" : "Filters";
       default:
         return "Tools";
     }
@@ -230,13 +235,13 @@ export const SecondarySidebar: React.FC<SecondarySidebarProps> = ({
   return (
     <DraggablePanel
       title={getTitle()}
-      defaultPosition={{ x: 0, y: 0 }} // Will be overridden by contextual positioning
+      defaultPosition={{ x: window.innerWidth - 63, y: 109 }}
       onClose={toggleSecondarySidebar}
       minWidth={280}
       minHeight={400}
-      className="w-80"
+      className="w-72 absolute right-20 top-16 z-[999] bg-white rounded-lg shadow-lg border border-gray-200"
       panelIndex={0}
-      panelType="left-sidebar"
+      panelType="popup"
     >
       {/* Tool Content */}
       {activeSidebarTab === "layers" && (
@@ -283,15 +288,9 @@ export const SecondarySidebar: React.FC<SecondarySidebarProps> = ({
                   variant="ghost"
                   size="sm"
                   className="h-6 w-6 p-0 text-gray-400 hover:text-gray-600"
+                  onClick={() => setActiveSidebarTab("filters")}
                 >
                   <Filter className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-6 w-6 p-0 text-gray-400 hover:text-gray-600"
-                >
-                  <MoreHorizontal className="h-4 w-4" />
                 </Button>
               </div>
             </div>
@@ -373,57 +372,18 @@ export const SecondarySidebar: React.FC<SecondarySidebarProps> = ({
               );
             })}
           </div>
-
-          {/* Filters Section */}
-          <div className="mt-4 space-y-3">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-medium text-gray-900">Filters</h3>
-            </div>
-
-            <div className="space-y-3">
-              <div>
-                <label className="block text-xs font-medium text-gray-700 mb-2">
-                  District:
-                </label>
-                <select
-                  value={selectedDistrict || ""}
-                  onChange={(e) => {
-                    const dist = e.target.value;
-                    onDistrictChange(dist);
-                  }}
-                  className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                >
-                  <option value="">-- Select District --</option>
-                  {districtOptions.map((d: any) => (
-                    <option key={d.dist_cod} value={d.dist_cod}>
-                      {d.dist_e}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {villageOptions.length > 0 && (
-                <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-2">
-                    Village:
-                  </label>
-                  <select
-                    value={selectedVillage || ""}
-                    onChange={(e) => onVillageChange(e.target.value)}
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                  >
-                    <option value="">-- Select Village --</option>
-                    {villageOptions.map((v: any) => (
-                      <option key={v.id} value={v.id}>
-                        {v.village}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
-            </div>
-          </div>
         </>
+      )}
+
+      {activeSidebarTab === "filters" && (
+        <FiltersComponent
+          districtOptions={districtOptions}
+          villageOptions={villageOptions}
+          selectedDistrict={selectedDistrict}
+          selectedVillage={selectedVillage}
+          onDistrictChange={onDistrictChange}
+          onVillageChange={onVillageChange}
+        />
       )}
 
       {activeSidebarTab === "draw" && (
@@ -499,14 +459,14 @@ export const SecondarySidebar: React.FC<SecondarySidebarProps> = ({
           {/* General Analysis Tools */}
           <div className="space-y-3 pt-3 border-t border-gray-200">
             <h3 className="text-sm font-medium text-gray-900">General Tools</h3>
-            {/* <AnalysisTools
-              onMeasureDistance={() => console.log('Measure distance')}
-              onMeasureArea={() => console.log('Measure area')}
-              onBufferAnalysis={() => console.log('Buffer analysis')}
-              onSpatialQuery={() => console.log('Spatial query')}
-              onExportData={() => console.log('Export data')}
-              onGenerateReport={() => console.log('Generate report')}
-            /> */}
+            <AnalysisTools
+              onMeasureDistance={() => console.log("Measure distance")}
+              onMeasureArea={() => console.log("Measure area")}
+              onBufferAnalysis={() => console.log("Buffer analysis")}
+              onSpatialQuery={() => console.log("Spatial query")}
+              onExportData={() => console.log("Export data")}
+              onGenerateReport={generateBufferReport}
+            />
           </div>
 
           {/* Clear Map */}

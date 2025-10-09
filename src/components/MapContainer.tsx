@@ -1,22 +1,30 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Map } from 'ol';
-import { Loader2, AlertCircle } from 'lucide-react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Button } from '@/components/ui/button';
-import { MapControls } from './MapControls';
-import { ActiveLayersPanel } from './ActiveLayersPanel';
-import { BasemapSwitcher } from './BasemapSwitcher';
-import { ScaleBar } from './ScaleBar';
-import { ClusterLayer } from './ClusterLayer';
-import { ClusterHoverHandler } from './ClusterHoverHandler';
-import { PointDetailPopup } from './PointDetailPopup';
-import { usePointHover } from '@/hooks/usePointHover';
-import { initializeOpenLayersMap, createLayerFromConfig, updateLayerVisibility, switchBasemap, CHHATTISGARH_CENTER, ClusterPoint, testGeoServerWFS } from '@/lib/mapUtils';
-import { chhattisgarhLayerHierarchy, LayerTreeNode } from '@/lib/layerData';
-import { useAppStore } from '@/lib/store';
-import { getDepartmentName } from '@/lib/departmentConfig';
-import { fromLonLat, toLonLat } from 'ol/proj';
-import { getPointResolution } from 'ol/proj';
+import React, { useEffect, useRef, useState } from "react";
+import { Map } from "ol";
+import { Loader2, AlertCircle } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { MapControls } from "./MapControls";
+import { ActiveLayersPanel } from "./ActiveLayersPanel";
+import { BasemapSwitcher } from "./BasemapSwitcher";
+import { ScaleBar } from "./ScaleBar";
+import { ClusterLayer } from "./ClusterLayer";
+import { ClusterHoverHandler } from "./ClusterHoverHandler";
+import { PointDetailPopup } from "./PointDetailPopup";
+import { usePointHover } from "@/hooks/usePointHover";
+import {
+  initializeOpenLayersMap,
+  createLayerFromConfig,
+  updateLayerVisibility,
+  switchBasemap,
+  CHHATTISGARH_CENTER,
+  ClusterPoint,
+  testGeoServerWFS,
+} from "@/lib/mapUtils";
+import { chhattisgarhLayerHierarchy, LayerTreeNode } from "@/lib/layerData";
+import { useAppStore } from "@/lib/store";
+import { getDepartmentName } from "@/lib/departmentConfig";
+import { fromLonLat, toLonLat } from "ol/proj";
+import { getPointResolution } from "ol/proj";
 
 interface MapContainerProps {
   selectedLayers: string[];
@@ -27,57 +35,80 @@ interface MapContainerProps {
   onToggleClusterDemo?: () => void;
 }
 
-export const MapContainer: React.FC<MapContainerProps> = ({ 
-  selectedLayers, 
-  onLayerSelectionChange, 
-  clusterPoints = [], 
+export const MapContainer: React.FC<MapContainerProps> = ({
+  selectedLayers,
+  onLayerSelectionChange,
+  clusterPoints = [],
   showClusters = true,
   showClusterDemo = false,
-  onToggleClusterDemo
+  onToggleClusterDemo,
 }) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const [map, setMap] = useState<Map | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [currentCoordinates, setCurrentCoordinates] = useState<[number, number]>();
+  const [currentCoordinates, setCurrentCoordinates] =
+    useState<[number, number]>();
   const [currentZoom, setCurrentZoom] = useState<number>(7);
   const [currentElevation] = useState<number>(533); // Mock elevation data
   const [showActiveLayers, setShowActiveLayers] = useState(true);
-  const [mapScale, setMapScale] = useState<{ value: number; unit: string }>({ value: 10, unit: 'km' });
-  
-  const { sidebarCollapsed, loading, setLoading, selectedLanguage, selectedDepartment } = useAppStore();
-  
+  const [mapScale, setMapScale] = useState<{ value: number; unit: string }>({
+    value: 10,
+    unit: "km",
+  });
+
+  const {
+    sidebarCollapsed,
+    loading,
+    setLoading,
+    selectedLanguage,
+    selectedDepartment,
+  } = useAppStore();
+
   // Hover functionality
-  const { hoverState, showHoverPopup, hideHoverPopup, clearHoverPopup } = usePointHover(map);
+  const { hoverState, showHoverPopup, hideHoverPopup, clearHoverPopup } =
+    usePointHover(map);
 
   // Function to calculate map scale
   const calculateMapScale = (map: Map) => {
-    if (!map) return { value: 10, unit: 'km' };
-    
+    if (!map) return { value: 10, unit: "km" };
+
     const view = map.getView();
     const resolution = view.getResolution();
     const center = view.getCenter();
-    
-    if (!resolution || !center) return { value: 10, unit: 'km' };
-    
+
+    if (!resolution || !center) return { value: 10, unit: "km" };
+
     // Get the resolution in meters per pixel
-    const metersPerPixel = getPointResolution(view.getProjection(), resolution, center);
-    
+    const metersPerPixel = getPointResolution(
+      view.getProjection(),
+      resolution,
+      center
+    );
+
     // Calculate scale for a 100px line (typical scale bar length)
     const scaleMeters = metersPerPixel * 100;
-    
+
     // Convert to appropriate units with better rounding
     if (scaleMeters >= 1000) {
       const km = scaleMeters / 1000;
       // Round to nice numbers
-      const niceKm = Math.pow(10, Math.floor(Math.log10(km))) * Math.round(km / Math.pow(10, Math.floor(Math.log10(km))));
-      return { value: Math.round(niceKm), unit: 'km' };
+      const niceKm =
+        Math.pow(10, Math.floor(Math.log10(km))) *
+        Math.round(km / Math.pow(10, Math.floor(Math.log10(km))));
+      return { value: Math.round(niceKm), unit: "km" };
     } else if (scaleMeters >= 1) {
-      const niceM = Math.pow(10, Math.floor(Math.log10(scaleMeters))) * Math.round(scaleMeters / Math.pow(10, Math.floor(Math.log10(scaleMeters))));
-      return { value: Math.round(niceM), unit: 'm' };
+      const niceM =
+        Math.pow(10, Math.floor(Math.log10(scaleMeters))) *
+        Math.round(
+          scaleMeters / Math.pow(10, Math.floor(Math.log10(scaleMeters)))
+        );
+      return { value: Math.round(niceM), unit: "m" };
     } else {
       const cm = scaleMeters * 100;
-      const niceCm = Math.pow(10, Math.floor(Math.log10(cm))) * Math.round(cm / Math.pow(10, Math.floor(Math.log10(cm))));
-      return { value: Math.round(niceCm), unit: 'cm' };
+      const niceCm =
+        Math.pow(10, Math.floor(Math.log10(cm))) *
+        Math.round(cm / Math.pow(10, Math.floor(Math.log10(cm))));
+      return { value: Math.round(niceCm), unit: "cm" };
     }
   };
 
@@ -87,15 +118,15 @@ export const MapContainer: React.FC<MapContainerProps> = ({
       try {
         setLoading(true);
         const newMap = initializeOpenLayersMap(mapRef.current);
-        
+
         // Add mouse move listener for coordinates
-        newMap.on('pointermove', (event) => {
+        newMap.on("pointermove", (event) => {
           const coordinate = toLonLat(event.coordinate);
           setCurrentCoordinates([coordinate[0], coordinate[1]]);
         });
 
         // Add zoom change listener
-        newMap.getView().on('change:resolution', () => {
+        newMap.getView().on("change:resolution", () => {
           const zoom = newMap.getView().getZoom();
           if (zoom !== undefined) {
             setCurrentZoom(zoom);
@@ -105,26 +136,26 @@ export const MapContainer: React.FC<MapContainerProps> = ({
         });
 
         // Add move listener for scale updates
-        newMap.getView().on('change:center', () => {
+        newMap.getView().on("change:center", () => {
           setMapScale(calculateMapScale(newMap));
         });
 
         // Calculate initial scale
         setMapScale(calculateMapScale(newMap));
-        
+
         // Add all available layers to map (initially hidden)
         const addLayersToMap = (node: LayerTreeNode) => {
-          if (node.type === 'layer' && node.layerConfig) {
+          if (node.type === "layer" && node.layerConfig) {
             try {
               const layer = createLayerFromConfig(node.layerConfig);
-              layer.set('id', node.layerConfig.id);
-              layer.set('title', node.title);
+              layer.set("id", node.layerConfig.id);
+              layer.set("title", node.title);
               newMap.addLayer(layer);
             } catch (layerError) {
               console.warn(`Failed to create layer ${node.id}:`, layerError);
             }
           }
-          
+
           if (node.children) {
             node.children.forEach(addLayersToMap);
           }
@@ -136,14 +167,16 @@ export const MapContainer: React.FC<MapContainerProps> = ({
 
         setMap(newMap);
         setError(null);
-        
+
         // Test WFS service connectivity
-        testGeoServerWFS('cg_state_boundary', 'ch_dep_data:cg_state_boundary');
-        testGeoServerWFS('cg_village_boundary', 'ch_dep_data:cg_village_boundary');
-        
+        testGeoServerWFS("cg_state_boundary", "ch_dep_data:cg_state_boundary");
+        testGeoServerWFS(
+          "cg_village_boundary",
+          "ch_dep_data:cg_village_boundary"
+        );
       } catch (err) {
-        setError('Failed to initialize map. Please refresh the page.');
-        console.error('Map initialization error:', err);
+        setError("Failed to initialize map. Please refresh the page.");
+        console.error("Map initialization error:", err);
       } finally {
         setLoading(false);
       }
@@ -160,11 +193,11 @@ export const MapContainer: React.FC<MapContainerProps> = ({
   useEffect(() => {
     if (map) {
       updateLayerVisibility(map, selectedLayers);
-      
+
       // Safety check: Ensure basemap and state boundary are always visible
       map.getLayers().forEach((layer) => {
-        const layerId = layer.get('id');
-        if (layerId === 'base' || layerId === 'ch_dep_data:cg_state_boundary') {
+        const layerId = layer.get("id");
+        if (layerId === "base" || layerId === "ch_dep_data:cg_state_boundary") {
           layer.setVisible(true);
         }
       });
@@ -211,7 +244,7 @@ export const MapContainer: React.FC<MapContainerProps> = ({
   };
 
   const handleLayerToggle = (layerId: string) => {
-    const newSelection = selectedLayers.filter(id => id !== layerId);
+    const newSelection = selectedLayers.filter((id) => id !== layerId);
     onLayerSelectionChange(newSelection);
   };
 
@@ -221,9 +254,11 @@ export const MapContainer: React.FC<MapContainerProps> = ({
       {loading && (
         <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-30">
           <div className="flex items-center space-x-3 bg-white p-4 rounded-lg shadow-lg">
-            <Loader2 className="h-6 w-6 animate-spin text-emerald-600" />
-            <span className="text-emerald-600 font-medium">
-              {selectedLanguage === 'hi' ? 'मानचित्र लोड हो रहा है...' : 'Loading map...'}
+            <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
+            <span className="text-blue-600 font-medium">
+              {selectedLanguage === "hi"
+                ? "मानचित्र लोड हो रहा है..."
+                : "Loading map..."}
             </span>
           </div>
         </div>
@@ -239,12 +274,11 @@ export const MapContainer: React.FC<MapContainerProps> = ({
         </div>
       )}
 
-
       {/* Map Container */}
-      <div 
-        ref={mapRef} 
+      <div
+        ref={mapRef}
         className="w-full h-full bg-gray-100"
-        style={{ cursor: 'grab' }}
+        style={{ cursor: "grab" }}
       />
 
       {/* Map Controls */}
@@ -259,7 +293,6 @@ export const MapContainer: React.FC<MapContainerProps> = ({
         showClusterDemo={showClusterDemo}
         hasActiveLayers={selectedLayers.length > 0}
       />
-
 
       {/* Active Layers Panel */}
       {showActiveLayers && selectedLayers.length > 0 && (
@@ -276,9 +309,9 @@ export const MapContainer: React.FC<MapContainerProps> = ({
       {/* Cluster Layer */}
       {showClusters && clusterPoints.length > 0 && (
         <>
-          <ClusterLayer 
-            map={map} 
-            points={clusterPoints} 
+          <ClusterLayer
+            map={map}
+            points={clusterPoints}
             clusterRadius={50}
             visible={true}
             onPointHover={showHoverPopup}
@@ -306,27 +339,36 @@ export const MapContainer: React.FC<MapContainerProps> = ({
           <div className="flex items-center space-x-3">
             <ScaleBar scale={mapScale} isMobile={window.innerWidth < 768} />
             <div>
-              {selectedLanguage === 'hi' 
-                ? `अक्षांश: ${currentCoordinates[1].toFixed(4)}° | देशांतर: ${currentCoordinates[0].toFixed(4)}°`
-                : `Lat: ${currentCoordinates[1].toFixed(4)}° | Lon: ${currentCoordinates[0].toFixed(4)}°`
-              }
+              {selectedLanguage === "hi"
+                ? `अक्षांश: ${currentCoordinates[1].toFixed(
+                    4
+                  )}° | देशांतर: ${currentCoordinates[0].toFixed(4)}°`
+                : `Lat: ${currentCoordinates[1].toFixed(
+                    4
+                  )}° | Lon: ${currentCoordinates[0].toFixed(4)}°`}
             </div>
           </div>
-          
+
           <div className="flex items-center space-x-3">
             {selectedLayers.length > 0 && (
               <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
                 <span>
-                  {selectedLayers.length} {selectedLanguage === 'hi' ? 'परतें सक्रिय' : 'layers active'}
+                  {selectedLayers.length}{" "}
+                  {selectedLanguage === "hi" ? "परतें सक्रिय" : "layers active"}
                 </span>
               </div>
             )}
             <div>
-              {selectedLanguage === 'hi' 
-                ? `© ${getDepartmentName(selectedDepartment, 'hi')} | © OpenStreetMap`
-                : `© ${getDepartmentName(selectedDepartment, 'en')} | © OpenStreetMap`
-              }
+              {selectedLanguage === "hi"
+                ? `© ${getDepartmentName(
+                    selectedDepartment,
+                    "hi"
+                  )} | © OpenStreetMap`
+                : `© ${getDepartmentName(
+                    selectedDepartment,
+                    "en"
+                  )} | © OpenStreetMap`}
             </div>
           </div>
         </div>

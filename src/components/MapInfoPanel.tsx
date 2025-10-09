@@ -106,7 +106,7 @@ export const MapInfoPanel: React.FC<MapInfoPanelProps> = ({
 
         <TabsContent value="elevation" className="space-y-2">
           <div className="text-center">
-            <div className="text-2xl font-bold text-emerald-600 mb-1">
+            <div className="text-2xl font-bold text-blue-600 mb-1">
               {currentElevation}m
             </div>
             <div className="text-xs text-gray-600">
@@ -117,7 +117,7 @@ export const MapInfoPanel: React.FC<MapInfoPanelProps> = ({
           <div className="bg-gradient-to-r from-green-100 to-emerald-100 p-2 rounded-lg cursor-pointer hover:from-green-200 hover:to-emerald-200 transition-colors"
                onClick={() => setIsElevationExpanded(!isElevationExpanded)}>
             <div className="flex items-center justify-between">
-              <div className="text-xs font-medium text-emerald-800">
+              <div className="text-xs font-medium text-blue-800">
                 {selectedLanguage === 'hi' ? 'ऊंचाई चार्ट' : 'Elevation Chart'}
               </div>
               <div className="text-xs text-emerald-600">

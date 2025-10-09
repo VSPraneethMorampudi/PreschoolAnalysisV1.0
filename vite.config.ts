@@ -4,9 +4,7 @@ import path from "path";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
-  plugins: [
-    react(),
-  ],
+  plugins: [react()],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
@@ -14,22 +12,23 @@ export default defineConfig(({ mode }) => ({
   },
   server: {
     proxy: {
-      '/geoserver': {
-        target: 'http://localhost:8080',
+      "/geoserver": {
+        target: "http://localhost:8080",
         changeOrigin: true,
         secure: false,
+        rewrite: (path) => path.replace(/^\/geoserver/, "/geoserver"),
         configure: (proxy, _options) => {
-          proxy.on('error', (err, _req, _res) => {
-            console.log('proxy error', err);
+          proxy.on("error", (err, _req, _res) => {
+            console.log("GeoServer proxy error:", err);
           });
-          proxy.on('proxyReq', (proxyReq, req, _res) => {
-            console.log('Sending Request to the Target:', req.method, req.url);
+          proxy.on("proxyReq", (proxyReq, req, _res) => {
+            console.log("Proxying request:", req.url);
           });
-          proxy.on('proxyRes', (proxyRes, req, _res) => {
-            console.log('Received Response from the Target:', proxyRes.statusCode, req.url);
+          proxy.on("proxyRes", (proxyRes, req, _res) => {
+            console.log("Received response:", proxyRes.statusCode, req.url);
           });
         },
-      }
-    }
-  }
+      },
+    },
+  },
 }));
